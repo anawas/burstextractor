@@ -1,0 +1,5 @@
+# ignore IDE specigiv folder
+.vscode/
+
+# ignore virtual environemnt
+venv/

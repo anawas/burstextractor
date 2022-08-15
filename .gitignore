@@ -3,3 +3,9 @@
 
 # ignore virtual environemnt
 venv/
+
+# ignore any downloaded files
+*.txt
+*.fit
+*.fit.gz
+

@@ -11,6 +11,11 @@ from radiospectra import __version__
 import timeutils
 import requests
 import datetime
+import logging
+
+logging.basicConfig(level=logging.DEBUG,
+                    filename='app.log', filemode='w',
+                    format='%(levelname)s - %(message)s')
 
 
 def process_burst_list(filename):
@@ -68,14 +73,23 @@ def extract_burst(event):
 
     for instr in instruments:
         if not instr.startswith('('):
+            logging.debug(f"Processing instrument {instr}")
             try:
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
                 s = s.subtract_bg()
-                intresting = s.in_interval(event_start, event_end)
-                intresting.peek(vmin=0, vmax=5)
-            except:
-                print(f"ERROR loading instrument {instr}")
+                interesting = s.in_interval(event_start, event_end)
+                spec_mean = interesting.data.mean()
+                min = -5*spec_mean
+                max = 20*spec_mean
+
+                if min > max:
+                    min *= -1
+                    max *= -1
+
+                interesting.peek(vmin=min, vmax=max)
+            except Exception as e:
+                logging.error("Exception occurred", exc_info=True)
                 continue
 
 
@@ -90,7 +104,11 @@ if __name__ == "__main__":
     filename = download_burst_list(2022, 8)
     burst_list = process_burst_list(filename)
 
-    # Let's get all type III bursts
-    type_3 = burst_list.loc[burst_list["Type"] == "III"]
-    row = type_3.iloc[3]
-    extract_burst(row)
+    # Let's get all type IV bursts
+    events = burst_list.loc[burst_list["Type"] == "IV"]
+    if len(events) > 0:
+        print(f"Found {len(events)} event(s)")
+        row = events.iloc[0]
+        extract_burst(row)
+    else:
+        print("No events found")

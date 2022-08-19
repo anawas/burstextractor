@@ -3,9 +3,17 @@
 
 # ignore virtual environemnt
 venv/
+__pycache__/
 
 # ignore any downloaded files
 *.txt
 *.fit
 *.fit.gz
+
+# ignore any output files
+*.png
+*.log
+
+# File from macos 
+.DS_Store
 

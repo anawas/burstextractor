@@ -4,6 +4,7 @@
 # ignore virtual environemnt
 venv/
 __pycache__/
+bursts/
 
 # ignore any downloaded files
 *.txt

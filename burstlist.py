@@ -54,6 +54,13 @@ def download_burst_list(select_year, select_month):
         f.write(flare_list.content.decode("utf-8"))
     return filename
 
+def prettify(spectro):
+    """
+    Applies some error corrections to the spectrogram. Those shall make the
+    spectrogram look nicer.
+    """
+    return spectro.elimwrongchannels().subtract_bg().denoise(full=True)
+
 
 def extract_burst(event):
     start, end = timeutils.extract_and_correct_time(event['Time'])
@@ -66,6 +73,7 @@ def extract_burst(event):
     instruments = event['Instruments'].split(',')
     for i in range(len(instruments)):
         instruments[i] = instruments[i].strip()
+
         # MEXICO-LANCE has got 2 instruments
         if instruments[i] == "MEXICO-LANCE":
             instruments[i] = "MEXICO-LANCE-A"
@@ -78,8 +86,8 @@ def extract_burst(event):
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
                 s = s.subtract_bg()
-                interesting = s.in_interval(event_start, event_end)
-                spec_mean = interesting.data.mean()
+                # interesting = s.in_interval(event_start, event_end)
+                spec_mean = s.data.mean()
                 min = -5*spec_mean
                 max = 20*spec_mean
 
@@ -87,7 +95,9 @@ def extract_burst(event):
                     min *= -1
                     max *= -1
 
-                interesting.peek(vmin=min, vmax=max)
+                prettify(s).save(f"{instr}-{event['Date']}-{start.strftime('%H%M')}-{end.strftime('%H%M')}.fit.gz")
+                #s.peek(vmin=min, vmax=max)
+
             except Exception as e:
                 logging.error("Exception occurred", exc_info=True)
                 continue
@@ -105,10 +115,11 @@ if __name__ == "__main__":
     burst_list = process_burst_list(filename)
 
     # Let's get all type IV bursts
-    events = burst_list.loc[burst_list["Type"] == "IV"]
+    events = burst_list.loc[burst_list["Type"] == "III"]
     if len(events) > 0:
         print(f"Found {len(events)} event(s)")
-        row = events.iloc[0]
-        extract_burst(row)
+        for i in range(len(events)):
+            row = events.iloc[i]
+            extract_burst(row)
     else:
         print("No events found")

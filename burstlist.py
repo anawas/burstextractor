@@ -15,7 +15,7 @@ import datetime
 import logging
 import os
 
-logging.basicConfig(level=logging.ERROR,
+logging.basicConfig(level=logging.INFO,
                     filename='app.log', filemode='w',
                     format='%(levelname)s - %(message)s')
 
@@ -136,7 +136,7 @@ def print_row(row):
 
 
 if __name__ == "__main__":
-
+    logging.info(f"\n===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     print(f"\n Radiospectra version = {__version__}\n")
     filename = download_burst_list(2022, 8)
     # filename = "e-CALLISTO_debug.txt"
@@ -151,3 +151,4 @@ if __name__ == "__main__":
             extract_burst(row)
     else:
         print("No events found")
+    logging.info(f"\n===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

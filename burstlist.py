@@ -75,7 +75,7 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = f"bursts/{date}"
+    path = f"/Volumes/Daten/bursts/{date}"
     if not os.path.exists(path):
         os.mkdir(path)
 
@@ -101,7 +101,9 @@ def extract_burst(event):
                 # the last row in the masked array contains all nan, this we ignore it
                 pretty = prettify(interesting)
                 spec_mean = np.mean(pretty.data)
-                print(spec_mean)
+                if np.isnan(spec_mean):
+                    logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
+                    logging.error("Spectrogram has NaN mean")
                 
                 if np.abs(spec_mean) <= 0.0001:
                     min = -5
@@ -122,7 +124,7 @@ def extract_burst(event):
                 filename = f"{path}/{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}"
                 plt.savefig(f"{filename}.jpg")
                 plt.close(fig)
-                pretty.save(f"{filename}.fit.gz")
+                # pretty.save(f"{filename}.fit.gz")
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")

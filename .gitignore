@@ -15,6 +15,10 @@ bursts/
 *.png
 *.log
 
+# ignore jupyter notebooks. Those are for devel only
+*.ipynb
+
+
 # File from macos 
 .DS_Store
 

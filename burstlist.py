@@ -7,7 +7,7 @@ project: Raumschiff
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from radiospectra.sources.callisto import CallistoSpectrogram
+from radiospectra.sources import CallistoSpectrogram
 from radiospectra import __version__
 import timeutils
 import requests
@@ -18,6 +18,9 @@ import os
 logging.basicConfig(level=logging.INFO,
                     filename='app.log', filemode='w',
                     format='%(levelname)s - %(message)s')
+
+files_read = 0
+files_written = 0
 
 
 def process_burst_list(filename):
@@ -31,6 +34,7 @@ def process_burst_list(filename):
     # Especially if there are several conditions
     missing_conditional = data['Time'] != "##:##-##:##"
     cleaned = data.loc[missing_conditional]
+
     return cleaned
 
 
@@ -65,6 +69,8 @@ def prettify(spectro):
 
 
 def extract_burst(event):
+    global files_read, files_written
+
     start, end = timeutils.extract_and_correct_time(event['Time'])
     start = start - datetime.timedelta(minutes=2)
     if start.minute % 15 == 0:
@@ -92,39 +98,36 @@ def extract_burst(event):
 
     for instr in instruments:
         if not instr.startswith('('):
+            # Instrument names have a dash in it. Sometimes there is a typo using
+            # an underscore '_'. We correct this on the fly.
+            if instr.find('_') >= 0:
+                instr.replace('_', '-')
+
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
+                files_read += 1
                 interesting = s.in_interval(event_start, event_end)
-                
+
                 # the last row in the masked array contains all nan, this we ignore it
                 pretty = prettify(interesting)
-                spec_mean = np.mean(pretty.data)
-                if np.isnan(spec_mean):
+                spec_max = pretty.data.max()
+                if np.isnan(spec_max):
+                    # raise Exception("Spectrogram has NaN max")
                     logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                     logging.error("Spectrogram has NaN mean")
+                    spec_max = 85
                 
-                if np.abs(spec_mean) <= 0.0001:
-                    min = -5
-                    max = 10
-                else:
-                    min=-5*spec_mean
-                    max=20*spec_mean
-
-                # in rare occasions min > max
-                if min > max:
-                    min *= -1
-                    max *= -1
-
                 fig = plt.figure(figsize=(6,4))
-                pretty.plot(fig, vmin=min, vmax=max, cmap=plt.get_cmap('plasma'))
+                pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))
                 fig.tight_layout()
                 
                 filename = f"{path}/{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}"
                 plt.savefig(f"{filename}.jpg")
                 plt.close(fig)
-                # pretty.save(f"{filename}.fit.gz")
+                pretty.save(f"{filename}.fit.gz")
+                files_written += 1
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
@@ -140,7 +143,8 @@ def print_row(row):
 if __name__ == "__main__":
     logging.info(f"\n===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     print(f"\n Radiospectra version = {__version__}\n")
-    filename = download_burst_list(2022, 8)
+    filename = "e-CALLISTO_2022_08.txt"
+    filename = download_burst_list(2022, 2)
     # filename = "e-CALLISTO_debug.txt"
     burst_list = process_burst_list(filename)
 
@@ -153,4 +157,6 @@ if __name__ == "__main__":
             extract_burst(row)
     else:
         print("No events found")
+    
+    logging.info(f"Files read: {files_read}\nfiles written successfully: {files_written}")
     logging.info(f"\n===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

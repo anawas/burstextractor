@@ -14,6 +14,7 @@ import requests
 import datetime
 import logging
 import os
+import copy
 
 logging.basicConfig(level=logging.INFO,
                     filename='app.log', filemode='w',
@@ -96,12 +97,20 @@ def extract_burst(event):
             instruments[i] = "MEXICO-LANCE-A"
             instruments.append("MEXICO-LANCE-B")
 
+        # Instrument Malaysia Banting has changed name. Before 2022-07 it was written with 
+        # an underscore '_'. After there is a dash '-'. We correct this on the fly
+        malaysia_alias = ["Malaysia_Banting", "Malaysia-Banting"]
+        if instruments[i] in malaysia_alias:
+            if instruments[i].find('_') >= 0:
+                new_instr = instruments[i].replace('_', '-')
+            else:
+                new_instr = instruments[i].replace('-', '_')
+            instruments.append(new_instr)
+
     for instr in instruments:
-        if not instr.startswith('('):
-            # Instrument names have a dash in it. Sometimes there is a typo using
-            # an underscore '_'. We correct this on the fly.
-            if instr.find('_') >= 0:
-                instr.replace('_', '-')
+        # Data from instruments marked with () or [] are either uncertain or messed up.
+        # We don't process them
+        if not instr.startswith('(') or instr.startwith('['):
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:

@@ -112,12 +112,7 @@ def extract_burst(event):
 
                 # the last row in the masked array contains all nan, this we ignore it
                 pretty = prettify(interesting)
-                spec_max = pretty.data.max()
-                if np.isnan(spec_max):
-                    # raise Exception("Spectrogram has NaN max")
-                    logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
-                    logging.error("Spectrogram has NaN mean")
-                    spec_max = 85
+                spec_max = np.nanmax(pretty.data)
                 
                 fig = plt.figure(figsize=(6,4))
                 pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))

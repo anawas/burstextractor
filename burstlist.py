@@ -82,9 +82,9 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = f"/Volumes/Daten/bursts/type5/{date}"
+    path = f"/Volumes/Daten/bursts/type{str(event['Type'])}/{date}"
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
 
     event_start = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
     event_end = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {end.hour}:{end.minute}"

@@ -82,7 +82,7 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = f"/Volumes/Daten/bursts/{date}"
+    path = f"/Volumes/Daten/bursts/type5/{date}"
     if not os.path.exists(path):
         os.mkdir(path)
 
@@ -110,7 +110,7 @@ def extract_burst(event):
     for instr in instruments:
         # Data from instruments marked with () or [] are either uncertain or messed up.
         # We don't process them
-        if not instr.startswith('(') or instr.startwith('['):
+        if not instr.startswith('(') or not instr.startswith('['):
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:
@@ -148,12 +148,12 @@ if __name__ == "__main__":
     logging.info(f"\n===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     print(f"\n Radiospectra version = {__version__}\n")
     filename = "e-CALLISTO_2022_08.txt"
-    filename = download_burst_list(2022, 2)
+    filename = download_burst_list(2022, 8)
     # filename = "e-CALLISTO_debug.txt"
     burst_list = process_burst_list(filename)
 
     # Let's get all type III bursts
-    events = burst_list.loc[burst_list["Type"] == "III"]
+    events = burst_list.loc[burst_list["Type"] == "V"]
     if len(events) > 0:
         print(f"Found {len(events)} event(s)")
         for i in range(len(events)):

@@ -110,7 +110,7 @@ def extract_burst(event):
     for instr in instruments:
         # Data from instruments marked with () or [] are either uncertain or messed up.
         # We don't process them
-        if not instr.startswith('(') or not instr.startswith('['):
+        if not instr.startswith('(') and not instr.startswith('['):
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:
@@ -148,19 +148,21 @@ if __name__ == "__main__":
     logging.info(f"\n===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     print(f"\n Radiospectra version = {__version__}\n")
     filename = "e-CALLISTO_2022_08.txt"
-    filename = download_burst_list(2022, 8)
-    # filename = "e-CALLISTO_debug.txt"
+    # filename = download_burst_list(2022, 8)
+    filename = "e-CALLISTO_debug.txt"
     burst_list = process_burst_list(filename)
 
     # Let's get all type III bursts
-    events = burst_list.loc[burst_list["Type"] == "V"]
-    if len(events) > 0:
-        print(f"Found {len(events)} event(s)")
-        for i in range(len(events)):
-            row = events.iloc[i]
-            extract_burst(row)
-    else:
-        print("No events found")
+    burst_types = ["I", "II", "III", "IV", "V"]
+    for type in burst_types:
+        events = burst_list.loc[burst_list["Type"] == type]
+        if len(events) > 0:
+            print(f"Found {len(events)} event(s)")
+            for i in range(len(events)):
+                row = events.iloc[i]
+                extract_burst(row)
+        else:
+            print("No events found")
     
     logging.info(f"Files read: {files_read}\nfiles written successfully: {files_written}")
     logging.info(f"\n===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

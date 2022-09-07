@@ -1,6 +1,6 @@
 """
 Reads a burst list compiled by C. Monstein from server and processes its data
-version 1.0
+version 1.2
 author: Andreas Wassmer
 project: Raumschiff
 """
@@ -16,6 +16,7 @@ import logging
 import os
 import copy
 
+__version__ = "1.2.0"
 logging.basicConfig(level=logging.INFO,
                     filename='app.log', filemode='w',
                     format='%(levelname)s - %(message)s')

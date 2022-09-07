@@ -23,6 +23,7 @@ logging.basicConfig(level=logging.INFO,
 files_read = 0
 files_written = 0
 
+BASE_DIR = "../e-Callisto/bursts"
 
 def process_burst_list(filename):
     col_names = ['Date', 'Time', 'Type', 'Instruments']
@@ -82,7 +83,7 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = f"/Volumes/Daten/bursts/type{str(event['Type'])}/{date}"
+    path = f"{BASE_DIR}/type{str(event['Type'])}/{date}"
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -147,12 +148,11 @@ def print_row(row):
 if __name__ == "__main__":
     logging.info(f"\n===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     print(f"\n Radiospectra version = {__version__}\n")
-    filename = "e-CALLISTO_2022_08.txt"
-    # filename = download_burst_list(2022, 8)
-    filename = "e-CALLISTO_debug.txt"
+    filename = download_burst_list(2022, 9)
+    # filename = "e-CALLISTO_debug.txt"
     burst_list = process_burst_list(filename)
 
-    # Let's get all type III bursts
+    # Let's define all burst types that we want to process
     burst_types = ["I", "II", "III", "IV", "V"]
     for type in burst_types:
         events = burst_list.loc[burst_list["Type"] == type]

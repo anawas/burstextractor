@@ -10,6 +10,7 @@ bursts/
 *.txt
 *.fit
 *.fit.gz
+!requirements.txt
 
 # ignore any output files
 *.png

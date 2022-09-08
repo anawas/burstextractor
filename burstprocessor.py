@@ -35,7 +35,7 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}", f"{date}")
+    path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}")
     if not os.path.exists(path):
         os.makedirs(path)
 

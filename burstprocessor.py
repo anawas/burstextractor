@@ -1,6 +1,7 @@
 """
-Reads a burst list compiled by C. Monstein from server and processes its data
-version 1.2
+Reads the burst list generate by the burstlist module, downloads the spectrograms
+and exstracts the bursts in it.
+version 1.3
 author: Andreas Wassmer
 project: Raumschiff
 """

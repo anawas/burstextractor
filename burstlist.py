@@ -1,6 +1,6 @@
 """
 Reads a burst list compiled by C. Monstein from server and processes its data
-version 1.2
+version 1.3
 author: Andreas Wassmer
 project: Raumschiff
 """
@@ -11,14 +11,19 @@ import requests
 BASE_URL = f"http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
     
 def process_burst_list(filename):
+    """
+    Let's discard the entries with missing data.
+    These events have a time stamp of "##:##-##:##" with no further data in the row except the date
+    I like to use a conditional for filtering. I think the filter is more readable.
+    Especially if there are several conditions
+
+    Returns: A Pandas Dataframe with valid events
+    """
     col_names = ['Date', 'Time', 'Type', 'Instruments']
     data = pd.read_csv(filename, sep="\t", skiprows=8, skipfooter=4,
                        index_col=False, encoding="latin-1", names=col_names, engine="python")
 
-    # let's discard the entries with missing data
-    # these events have a time stamp of "##:##-##:##" with no further data in the row except the date
-    # I like to use a conditional for filtering. I think the filter is more readable.
-    # Especially if there are several conditions
+
     missing_conditional = data['Time'] != "##:##-##:##"
     cleaned = data.loc[missing_conditional]
 

@@ -1,6 +1,6 @@
 """
-Reads a burst list compiled by C. Monstein from server and processes its data
-version 1.2
+The main part of the app
+version 1.0
 author: Andreas Wassmer
 project: Raumschiff
 """

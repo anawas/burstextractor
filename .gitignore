@@ -1,4 +1,4 @@
-# ignore IDE specigiv folder
+# ignore IDE specific folder
 .vscode/
 
 # ignore virtual environemnt
@@ -14,6 +14,7 @@ bursts/
 # ignore any output files
 *.png
 *.log
+_version.py
 
 # ignore jupyter notebooks. Those are for devel only
 *.ipynb

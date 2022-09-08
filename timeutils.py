@@ -3,7 +3,7 @@ import datetime
 
 def extract_and_correct_time(event_time):
     """
-    the event time may have typos in it, i.e 01_55 instead of 01:55.
+    the event time may have typos in it, i.e. 01_55 instead of 01:55.
     this function corrects it.
     Returns: start and end of event as datetime object
     May seems overkill but we never now what we will do with it.

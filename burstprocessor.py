@@ -12,7 +12,7 @@ import datetime
 import logging
 import os
 
-BASE_DIR = "../e-Callisto/bursts"
+BASE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../e-Callisto/bursts"))
 
 def prettify(spectro):
     """
@@ -34,7 +34,7 @@ def extract_burst(event):
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = f"{BASE_DIR}/type_{str(event['Type'])}/{date}"
+    path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}", f"{date}")
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -78,7 +78,7 @@ def extract_burst(event):
                 pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))
                 fig.tight_layout()
                 
-                filename = f"{path}/{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}"
+                filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
                 plt.savefig(f"{filename}.jpg")
                 plt.close(fig)
                 pretty.save(f"{filename}.fit.gz")

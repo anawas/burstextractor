@@ -75,10 +75,10 @@ def extract_burst(event):
                 pretty = prettify(interesting)
                 spec_max = np.nanmax(pretty.data)
                 
+                plt.ioff()
                 fig = plt.figure(figsize=(6,4))
                 pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))
                 fig.tight_layout()
-                
                 filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
                 plt.savefig(f"{filename}.jpg")
                 plt.close(fig)

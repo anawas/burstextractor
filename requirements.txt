@@ -9,6 +9,7 @@ cached-property==1.5.2
 cdflib==0.4.7
 certifi==2022.6.15
 charset-normalizer==2.1.1
+click==8.1.3
 cycler==0.11.0
 drms==0.6.2
 fonttools==4.37.1
@@ -51,6 +52,7 @@ sunpy==4.0.4
 tifffile==2022.8.12
 tomli==2.0.1
 tqdm==4.64.1
+typer==0.6.1
 urllib3==1.26.12
 yarl==1.8.1
 zeep==4.1.0

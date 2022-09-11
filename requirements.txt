@@ -1,3 +1,4 @@
+boto3
 radiospectra @ git+https://github.com/anawas/radiospectra.git@fe514c89e4170be2b183a1031a2975ef0d6417de
 ruptures
 scikit-image

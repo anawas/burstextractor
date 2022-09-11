@@ -12,6 +12,8 @@ import timeutils
 import datetime
 import logging
 import os
+import boto3
+import aws_s3_handler
 
 BASE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "../e-Callisto/bursts"))
 
@@ -24,6 +26,10 @@ def prettify(spectro):
 
 
 def extract_burst(event):
+    s3 = boto3.resource(
+        service_name='s3',
+        region_name='eu-central-1'
+    )
 
     start, end = timeutils.extract_and_correct_time(event['Time'])
     start = start - datetime.timedelta(minutes=2)
@@ -83,6 +89,15 @@ def extract_burst(event):
                 plt.savefig(f"{filename}.jpg")
                 plt.close(fig)
                 pretty.save(f"{filename}.fit.gz")
+                s3.Bucket(aws_s3_handler.AWS_S3_BUCKET).upload_file(
+                    Filename=f"{filename}.jpg",
+                    Key=f"{aws_s3_handler.KEY_BASE}/type_{str(event['Type'])}/{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}.jpg")
+
+                s3.Bucket(aws_s3_handler.AWS_S3_BUCKET).upload_file(
+                    Filename=f"{filename}.fit.gz",
+                    Key=f"{aws_s3_handler.KEY_BASE}/type_{str(event['Type'])}/{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}.fit.gz")
+                os.remove(f"{filename}.fit.gz")
+                os.remove(f"{filename}.jpg")
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")

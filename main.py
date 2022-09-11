@@ -11,6 +11,7 @@ import burstlist
 import burstprocessor
 import datetime
 import logging
+import os
 
 def fix_month_length(month):
     if month < 10:
@@ -28,7 +29,10 @@ def main(year:int = typer.Option(..., help="Observation year"),
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing month {m} -----\n")
 
-    filename = f"e-CALLISTO_2022_{m}.txt"
+    filename = f"e-CALLISTO_{year}_{m}.txt"
+    if not os.path.exists(filename):
+        filename = burstlist.download_burst_list(year, month)
+
     burst_list = burstlist.process_burst_list(filename)
     extract_bursts(burst_list, type)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

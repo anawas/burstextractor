@@ -11,6 +11,7 @@ import burstlist
 import burstprocessor
 import datetime
 import logging
+import os
 
 def fix_month_length(month):
     if month < 10:
@@ -22,20 +23,23 @@ def fix_month_length(month):
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
          type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
+    
     check_valid_date(year, month)
     m = fix_month_length(month)
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
-    logging.info(f"----- Processing month {m} -----\n")
+    logging.info(f"----- Processing data for {year}-{m} -----\n")
 
-    filename = f"e-CALLISTO_2022_{m}.txt"
+    filename = f"e-CALLISTO_{year}_{m}.txt"
+    if not os.path.exists(filename):
+        filename = burstlist.download_burst_list(year, month)
+
     burst_list = burstlist.process_burst_list(filename)
     extract_bursts(burst_list, type)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 
-
 def extract_bursts(burst_list, chosen_type: str):
-        # Let's define all burst types that we want to process
+    # Let's define all burst types that we want to process
     burst_types = ["I", "II", "III", "IV", "V"]    
     types_to_process = list()
     if (chosen_type == "all"):

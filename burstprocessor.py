@@ -24,8 +24,15 @@ def prettify(spectro):
 
 
 def extract_burst(event):
+    # There may be a typo in the event time. If so the time cannot be parsed.
+    # We raise an exception, report it in the log an return without processing.
+    try:
+        start, end = timeutils.extract_and_correct_time(event['Time'])
+    except Exception as ex:
+        logging.error(f"While processing event {event['Time']} ")
+        logging.error("Exception occurred", exc_info=True)
+        return
 
-    start, end = timeutils.extract_and_correct_time(event['Time'])
     start = start - datetime.timedelta(minutes=2)
     if start.minute % 15 == 0:
         start = start + datetime.timedelta(minutes=-1)
@@ -66,6 +73,7 @@ def extract_burst(event):
         if not instr.startswith('(') and not instr.startswith('['):
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
+            """
             try:
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
@@ -88,6 +96,7 @@ def extract_burst(event):
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)
                 continue
+            """
 
 
 

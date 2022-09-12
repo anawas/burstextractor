@@ -61,7 +61,7 @@ def extract_bursts(burst_list, chosen_type: str):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
-                    filename='app.log', filemode='w',
+                    filename='app.log', filemode='a',
                     format='%(levelname)s - %(message)s')
 
     print(f"\n Radiospectra version = {__version__}\n")

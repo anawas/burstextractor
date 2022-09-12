@@ -79,7 +79,6 @@ def extract_burst(event):
         if not instr.startswith('(') and not instr.startswith('['):
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
-            """
             try:
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
@@ -111,7 +110,6 @@ def extract_burst(event):
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)
                 continue
-            """
 
 
 

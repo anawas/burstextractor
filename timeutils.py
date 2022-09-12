@@ -8,8 +8,11 @@ def extract_and_correct_time(event_time):
     Returns: start and end of event as datetime object
     May seems overkill but we never now what we will do with it.
     """
-    start = event_time.split("-")[0]
-    end = event_time.split("-")[1]
+    try:
+        start = event_time.split("-")[0]
+        end = event_time.split("-")[1]
+    except Exception as ex:
+        raise ex
 
     if ":" not in start:
         start = start[0:2] + ":" + start[3:-1]

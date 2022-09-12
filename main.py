@@ -23,6 +23,7 @@ def fix_month_length(month):
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
          type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
+    
     check_valid_date(year, month)
     m = fix_month_length(month)
 
@@ -37,9 +38,8 @@ def main(year:int = typer.Option(..., help="Observation year"),
     extract_bursts(burst_list, type)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 
-
 def extract_bursts(burst_list, chosen_type: str):
-        # Let's define all burst types that we want to process
+    # Let's define all burst types that we want to process
     burst_types = ["I", "II", "III", "IV", "V"]    
     types_to_process = list()
     if (chosen_type == "all"):
@@ -61,7 +61,7 @@ def extract_bursts(burst_list, chosen_type: str):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
-                    filename='app.log', filemode='w',
+                    filename='app.log', filemode='a',
                     format='%(levelname)s - %(message)s')
 
     print(f"\n Radiospectra version = {__version__}\n")

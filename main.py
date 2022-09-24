@@ -12,6 +12,7 @@ import burstprocessor
 import datetime
 import logging
 import os
+import WebdavConnector
 
 def fix_month_length(month):
     if month < 10:
@@ -24,6 +25,8 @@ def main(year:int = typer.Option(..., help="Observation year"),
          month:int = typer.Option(..., help="Obervation month"),
          type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
     
+    webdav = WebdavConnector.WebdavConnector()
+
     check_valid_date(year, month)
     m = fix_month_length(month)
 
@@ -35,10 +38,10 @@ def main(year:int = typer.Option(..., help="Observation year"),
         filename = burstlist.download_burst_list(year, month)
 
     burst_list = burstlist.process_burst_list(filename)
-    extract_bursts(burst_list, type)
+    extract_bursts(burst_list, type, connector=webdav)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 
-def extract_bursts(burst_list, chosen_type: str):
+def extract_bursts(burst_list, chosen_type: str, connector=None):
     # Let's define all burst types that we want to process
     burst_types = ["I", "II", "III", "IV", "V"]    
     types_to_process = list()
@@ -54,7 +57,7 @@ def extract_bursts(burst_list, chosen_type: str):
             print(f"Found {len(events)} event(s) of type {type}")
             for i in range(len(events)):
                 row = events.iloc[i]
-                burstprocessor.extract_burst(row)
+                burstprocessor.extract_burst(row, connector)
         else:
             print(f"No events of type {type} found")
 

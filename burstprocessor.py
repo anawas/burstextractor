@@ -22,7 +22,9 @@ def prettify(spectro):
     Applies some error corrections to the spectrogram. Those shall make the
     spectrogram look nicer.
     """
-    return spectro.elimwrongchannels().subtract_bg().denoise(full=False)
+    no_bg = spectro.subtract_bg("constbacksub", "elimwrongchannels") 
+    return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
+                                     amount=0.05, change_points=True)
 
 
 def extract_burst(event, connector:WebdavConnector.WebdavConnector):

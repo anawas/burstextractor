@@ -20,7 +20,11 @@ _version.py
 # ignore jupyter notebooks. Those are for devel only
 *.ipynb
 
+<<<<<<< HEAD
 # ignore secrets files
+=======
+# ignore secrets file
+>>>>>>> main
 .env
 
 # File from macos 

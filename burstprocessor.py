@@ -24,7 +24,7 @@ def prettify(spectro):
     """
     no_bg = spectro.subtract_bg("constbacksub", "elimwrongchannels") 
     return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
-                                     amount=0.05, change_points=True)
+                                     amount=0.05, change_points=True).denoise()
 
 
 def extract_burst(event, connector:WebdavConnector.WebdavConnector):

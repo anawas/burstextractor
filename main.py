@@ -14,25 +14,18 @@ import logging
 import os
 import WebdavConnector
 
-def fix_length(value):
-    if value < 10:
-        v = "0" + str(value)
-    else:
-        m = str(value)
-    return v
-
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
-         day: int = typer.Option(..., help="Observation day"),
+         day: int = typer.Option(0, help="Observation day"),
          type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
     
 
     check_valid_date(year, month, day)
     m = str(month).zfill(2)
-    d = str(day).zfill(2)
-    exit(0)
-    webdav = WebdavConnector.WebdavConnector()
+    if day > 0:
+        d = str(day).zfill(2)
 
+    webdav = WebdavConnector.WebdavConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")
@@ -41,7 +34,12 @@ def main(year:int = typer.Option(..., help="Observation year"),
     if not os.path.exists(filename):
         filename = burstlist.download_burst_list(year, month)
 
-    burst_list = burstlist.process_burst_list(filename)
+    pref_date = None
+    if day > 0:
+        pref_date = f"{year}{m}{d}"
+
+    burst_list = burstlist.process_burst_list(filename, date=pref_date)
+
     extract_bursts(burst_list, type, connector=webdav)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 

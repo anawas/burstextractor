@@ -15,7 +15,7 @@ import datetime
 import logging
 import os
 
-BASE_DIR = "eCallisto/bursts"
+BASE_DIR = "/temp" #/eCallisto/bursts"
 
 def prettify(spectro):
     """
@@ -49,6 +49,7 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector):
     path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}")
 
     if not connector.check_dir_exists(path):
+        print(f"Creating {path}")
         connector.make_dir(path)
 
     #if not os.path.exists(path):

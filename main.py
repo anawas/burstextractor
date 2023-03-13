@@ -14,21 +14,25 @@ import logging
 import os
 import WebdavConnector
 
-def fix_month_length(month):
-    if month < 10:
-        m = "0" + str(month)
+def fix_length(value):
+    if value < 10:
+        v = "0" + str(value)
     else:
-        m = str(month)
-    return m
+        m = str(value)
+    return v
 
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
+         day: int = typer.Option(..., help="Observation day"),
          type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
     
+
+    check_valid_date(year, month, day)
+    m = str(month).zfill(2)
+    d = str(day).zfill(2)
+    exit(0)
     webdav = WebdavConnector.WebdavConnector()
 
-    check_valid_date(year, month)
-    m = fix_month_length(month)
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")

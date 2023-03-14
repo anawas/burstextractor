@@ -17,16 +17,12 @@ bursts/
 *.log
 _version.py
 
-# ignore jupyter notebooks. Those are for devel only
-*.ipynb
-
-<<<<<<< HEAD
-# ignore secrets files
-=======
 # ignore secrets file
->>>>>>> main
 .env
 
 # File from macos 
 .DS_Store
 
+# ignore helper files and files for devel only
+*.ipynb
+find_last_date_processed.py

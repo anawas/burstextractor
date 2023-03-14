@@ -15,7 +15,7 @@ import datetime
 import logging
 import os
 
-BASE_DIR = "/temp" #/eCallisto/bursts"
+BASE_DIR = "temp/" # eCallisto/bursts"
 
 def prettify(spectro):
     """
@@ -26,8 +26,7 @@ def prettify(spectro):
     return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
                                      amount=0.05, change_points=True).denoise()
 
-
-def extract_burst(event, connector:WebdavConnector.WebdavConnector):
+def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:
@@ -48,12 +47,14 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector):
     date = str(event['Date'])
     path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}")
 
-    if not connector.check_dir_exists(path):
-        print(f"Creating {path}")
-        connector.make_dir(path)
+    if connector is None:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    else:
+        if not connector.check_dir_exists(path):
+            print(f"Creating {path}")
+            connector.make_dir(path)
 
-    #if not os.path.exists(path):
-    #    os.makedirs(path)
 
     event_start = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
     event_end = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {end.hour}:{end.minute}"
@@ -95,25 +96,29 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector):
                 fig = plt.figure(figsize=(6,4))
                 pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))
                 fig.tight_layout()
-
-                print("Writing files to server")
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    tmpfile = tempfile.NamedTemporaryFile(mode="w")
-                    tmpfile.close()
-                    tmp_filename = os.path.join(tmpdir, tmpfile.name)
-                    plt.savefig(f"{tmp_filename}.jpg")
+                
+                filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
+                if connector is None:
+                    plt.savefig(f"{filename}.jpg")
                     plt.close(fig)
-                    pretty.save(f"{tmp_filename}.fit.gz")
-
+                    pretty.save(f"{filename}.fit.gz")
+                else:
+                    print("Writing files to server")
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        tmpfile = tempfile.NamedTemporaryFile(mode="w")
+                        tmpfile.close()
+                        tmp_filename = os.path.join(tmpdir, tmpfile.name)
+                        plt.savefig(f"{tmp_filename}.jpg")
+                        plt.close(fig)
+                        pretty.save(f"{tmp_filename}.fit.gz")
+                        
                     filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
                     connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg")
                     connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz")
-
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)
                 continue
-
 
 

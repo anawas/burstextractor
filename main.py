@@ -17,15 +17,21 @@ import WebdavConnector
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
          day: int = typer.Option(0, help="Observation day"),
-         type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed.")):
+         type:str = typer.Option("all", help="The burst type to process (I to V). If not given, all types are processed."),
+         remote:bool = typer.Option(False, help="Write files to raumschiff server.\nNeeds credentials for server access.")
+         ):
     
+    print(f"\n Radiospectra version = {__version__}\n")
 
     check_valid_date(year, month, day)
     m = str(month).zfill(2)
     if day > 0:
         d = str(day).zfill(2)
 
-    webdav = WebdavConnector.WebdavConnector()
+    connector = None
+    if remote:
+        print("Connect to raumschiff server")
+        connector = WebdavConnector.WebdavConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")
@@ -40,7 +46,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
 
     burst_list = burstlist.process_burst_list(filename, date=pref_date)
 
-    extract_bursts(burst_list, type, connector=webdav)
+    extract_bursts(burst_list, type, connector=connector)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 
 def extract_bursts(burst_list, chosen_type: str, connector=None):
@@ -69,6 +75,5 @@ if __name__ == "__main__":
                     filename='app.log', filemode='a',
                     format='%(levelname)s - %(message)s')
 
-    print(f"\n Radiospectra version = {__version__}\n")
     typer.run(main)
  

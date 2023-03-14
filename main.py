@@ -1,6 +1,6 @@
 """
 The main part of the app
-version 1.0
+version 1.6
 author: Andreas Wassmer
 project: Raumschiff
 """

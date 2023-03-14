@@ -17,6 +17,15 @@ class WebdavConnector:
         }
         self.client = Client(options)
 
+    def list_dir(self, remote_dir_name=None):
+        """
+        Returns the names of the files in the remote folder
+        Arguments:
+        remote_dir_name: the name of the folder
+        """
+        assert remote_dir_name is not None
+        files = self.client.list(remote_dir_name)
+        return files
 
     def put_file(self, remote_name=None, local_name=None):
         """

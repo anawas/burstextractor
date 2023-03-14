@@ -39,7 +39,7 @@ def check_valid_date(year, month, day):
     if datetime.date.today().year == year:
         assert (
             datetime.date.today().month >= month
-        ), "The month {} in {} has lies in the future".format(month, year)
+        ), "Month {} in {} lies in the future".format(month, year)
     assert (
         datetime.date.today().year >= year
     ), "The year {} lies in the future".format(year)

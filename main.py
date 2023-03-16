@@ -37,8 +37,12 @@ def main(year:int = typer.Option(..., help="Observation year"),
     logging.info(f"----- Processing data for {year}-{m} -----\n")
 
     filename = f"e-CALLISTO_{year}_{m}.txt"
-    if not os.path.exists(filename):
+    if download_file_needed(filename):
+        logging.info("Dowloading burst file")
         filename = burstlist.download_burst_list(year, month)
+    else:
+        logging.info("Using existing burst file")
+
 
     pref_date = None
     if day > 0:
@@ -48,6 +52,24 @@ def main(year:int = typer.Option(..., help="Observation year"),
 
     extract_bursts(burst_list, type, connector=connector)
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
+
+def download_file_needed(filename):
+    if not os.path.exists(filename):
+        return True
+    
+    # Get creation time
+    f_stats = os.stat(filename)
+    b_time = datetime.datetime.fromtimestamp(f_stats.st_ctime)
+    now = datetime.datetime.now()
+
+    # if file is older than 6 hours then reload
+    age_hrs = (now-b_time).seconds/3600 
+    if age_hrs >= 6:
+        return True
+
+    # No need to download the file
+    return False
+
 
 def extract_bursts(burst_list, chosen_type: str, connector=None):
     # Let's define all burst types that we want to process
@@ -65,7 +87,10 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
             print(f"Found {len(events)} event(s) of type {type}")
             for i in range(len(events)):
                 row = events.iloc[i]
-                burstprocessor.extract_burst(row, connector)
+                try:
+                    burstprocessor.extract_burst(row, connector)
+                except:
+                    logging.error("Cannot process image")
         else:
             print(f"No events of type {type} found")
 

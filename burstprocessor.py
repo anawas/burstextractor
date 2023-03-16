@@ -33,7 +33,7 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
         start, end = timeutils.extract_and_correct_time(event['Time'])
     except Exception as ex:
         logging.error(f"While processing event {event['Time']} ")
-        logging.error("Exception occurred", exc_info=True)
+        logging.error("Exception occurred", exc_info=False)
         return
 
     start = start - datetime.timedelta(minutes=2)
@@ -118,7 +118,7 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
-                logging.error("Exception occurred", exc_info=True)
+                logging.error("Exception occurred", exc_info=False)
                 continue
 
 

@@ -36,8 +36,11 @@ class WebdavConnector:
         """
         assert remote_name is not None
         assert local_name is not None
-        
-        self.client.upload_sync(remote_path=remote_name, local_path=local_name)
+
+        # only write the file if it doesn't exist
+        if not self.client.check(remote_name):
+            self.client.upload_sync(remote_path=remote_name, local_path=local_name)
+
     
     def put_file_async(self, remote_name=None, local_name=None, callback=None):
         """

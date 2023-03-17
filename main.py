@@ -63,7 +63,7 @@ def download_file_needed(filename):
     now = datetime.datetime.now()
 
     # if file is older than 6 hours then reload
-    age_hrs = (now-b_time).seconds/3600 
+    age_hrs = (now-b_time).days*24 + (now-b_time).seconds/3600 
     if age_hrs >= 6:
         return True
 

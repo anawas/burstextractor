@@ -26,3 +26,4 @@ _version.py
 # ignore helper files and files for devel only
 *.ipynb
 find_last_date_processed.py
+temp/**

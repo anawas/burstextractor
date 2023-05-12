@@ -68,7 +68,7 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
             instruments.append("MEXICO-LANCE-B")
 
         # Instrument Malaysia Banting has changed name. Before 2022-07 it was written with 
-        # an underscore '_'. After there is a dash '-'. We correct this on the fly
+        # an underscore '_'. After that there is a dash '-'. We correct this on the fly
         malaysia_alias = ["Malaysia_Banting", "Malaysia-Banting"]
         if instruments[i] in malaysia_alias:
             if instruments[i].find('_') >= 0:

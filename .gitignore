@@ -17,6 +17,9 @@ bursts/
 *.log
 _version.py
 
+# ignore any db files
+*.db
+
 # ignore secrets file
 .env
 

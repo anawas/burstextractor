@@ -12,7 +12,7 @@ import burstprocessor
 import datetime
 import logging
 import os
-import WebdavConnector
+import webdav.WebdavConnector as wdav
 
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
@@ -31,7 +31,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     connector = None
     if remote:
         print("Connect to raumschiff server")
-        connector = WebdavConnector.WebdavConnector()
+        connector = wdav.WebdavConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")

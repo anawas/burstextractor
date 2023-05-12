@@ -8,12 +8,13 @@ project: Raumschiff
 import matplotlib.pyplot as plt
 import numpy as np
 from radiospectra.sources import CallistoSpectrogram
-import WebdavConnector
+import webdav.WebdavConnector as wdav
 import tempfile
 import timeutils
 import datetime
 import logging
 import os
+from validation import snr
 
 BASE_DIR = "temp/" # eCallisto/bursts"
 
@@ -26,7 +27,7 @@ def prettify(spectro):
     return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
                                      amount=0.05, change_points=True).denoise()
 
-def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
+def extract_burst(event, connector:wdav.WebdavConnector=None):
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:
@@ -91,7 +92,10 @@ def extract_burst(event, connector:WebdavConnector.WebdavConnector=None):
                 # the last row in the masked array contains all nan, this we ignore it
                 pretty = prettify(interesting)
                 spec_max = np.nanmax(pretty.data)
-                
+                quality = snr.calculate_snr(pretty.data)
+
+                # Adding snr to the fits header for further reference
+                pretty.header.append(("snr", quality))
                 plt.ioff()
                 fig = plt.figure(figsize=(6,4))
                 pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))

@@ -117,8 +117,8 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
                         pretty.save(f"{tmp_filename}.fit.gz")
                         
                     filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
-                    connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg")
-                    connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz")
+                    connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=False)
+                    connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=False)
 
             except Exception as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")

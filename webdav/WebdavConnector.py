@@ -27,7 +27,7 @@ class WebdavConnector:
         files = self.client.list(remote_dir_name)
         return files
 
-    def put_file(self, remote_name=None, local_name=None):
+    def put_file(self, remote_name=None, local_name=None, overwrite=False):
         """
         Uploads a local file to webdav server
         Arguments:
@@ -38,7 +38,7 @@ class WebdavConnector:
         assert local_name is not None
 
         # only write the file if it doesn't exist
-        if not self.client.check(remote_name):
+        if not self.client.check(remote_name) or overwrite:
             self.client.upload_sync(remote_path=remote_name, local_path=local_name)
 
     

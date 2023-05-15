@@ -12,8 +12,11 @@ bursts/
 *.fit.gz
 !requirements.txt
 
-# ignore any output files
+# ignore images
 *.png
+*.jpg
+
+# ignore any output files
 *.log
 _version.py
 

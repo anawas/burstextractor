@@ -27,6 +27,20 @@ class WebdavConnector:
         files = self.client.list(remote_dir_name)
         return files
 
+    def get_file(self, remote_name=None, local_name=None):
+        """
+        Downloads a file from webdav server to local folder
+        Arguments:
+        remote_name: full path of file on the server
+        local_name: name of the file after download. Add path if necessary.
+        """
+        assert remote_name is not None
+        assert local_name is not None
+
+        # only download the file if it exists
+        if self.client.check(remote_name):
+            self.client.download_sync(remote_path=remote_name, local_path=local_name)
+
     def put_file(self, remote_name=None, local_name=None, overwrite=False):
         """
         Uploads a local file to webdav server

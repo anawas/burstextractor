@@ -77,6 +77,12 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
             else:
                 new_instr = instruments[i].replace('-', '_')
             instruments.append(new_instr)
+        
+        # Instrument name "e-Callisto" means that there are too many stations to report or, 
+        # PI on vacation or out of office
+        # We skip those entries
+        if instruments[i] == "e-Callisto":
+            instruments.remove(instruments[i])
 
     for instr in instruments:
         # Data from instruments marked with () or [] are either uncertain or messed up.
@@ -120,9 +126,9 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
                     connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=False)
                     connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=False)
 
-            except Exception as e:
+            except BaseException as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
-                logging.error("Exception occurred", exc_info=False)
+                logging.error("Exception occurred", exc_info=True)
                 continue
 
 

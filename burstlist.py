@@ -10,7 +10,7 @@ import requests
 
 BASE_URL = f"http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
     
-def process_burst_list(filename, date=None):
+def process_burst_list(filename, date=None) -> pd.DataFrame:
     """
     Let's discard the entries with missing data.
     These events have a time stamp of "##:##-##:##" with no further data in the row except the date

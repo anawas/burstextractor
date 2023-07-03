@@ -17,6 +17,7 @@ bursts/
 *.jpg
 
 # ignore any output files
+*.csv
 *.log
 _version.py
 

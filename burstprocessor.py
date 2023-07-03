@@ -99,6 +99,7 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
                 pretty = prettify(interesting)
                 spec_max = np.nanmax(pretty.data)
                 quality = snr.calculate_snr(pretty.data)
+                logging.debug(f"{instr} snr: {quality}")
 
                 # Adding snr to the fits header for further reference
                 pretty.header.append(("snr", quality))
@@ -125,7 +126,8 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
                     filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
                     connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=False)
                     connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=False)
-
+            except ValueError:
+                logging.error(f"No data for instrument {instr} on {event['Date']} at {start.strftime('%H:%M')} to {end.strftime('%H:%M')}")
             except BaseException as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)

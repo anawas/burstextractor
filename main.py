@@ -6,7 +6,7 @@ project: Raumschiff
 """
 import typer
 from radiospectra import __version__
-from timeutils import check_valid_date
+import utils.timeutils
 import burstlist
 import burstprocessor
 import datetime
@@ -23,7 +23,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     
     print(f"\n Radiospectra version = {__version__}\n")
 
-    check_valid_date(year, month, day)
+    utils.timeutils.check_valid_date(year, month, day)
     m = str(month).zfill(2)
     if day > 0:
         d = str(day).zfill(2)

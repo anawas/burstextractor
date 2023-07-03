@@ -10,7 +10,7 @@ import numpy as np
 from radiospectra.sources import CallistoSpectrogram
 import webdav.WebdavConnector as wdav
 import tempfile
-import timeutils
+import utils.timeutils
 import datetime
 import logging
 import os
@@ -31,7 +31,7 @@ def extract_burst(event, connector:wdav.WebdavConnector=None):
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:
-        start, end = timeutils.extract_and_correct_time(event['Time'])
+        start, end = utils.timeutils.extract_and_correct_time(event['Time'])
     except Exception as ex:
         logging.error(f"While processing event {event['Time']} ")
         logging.error("Exception occurred", exc_info=False)

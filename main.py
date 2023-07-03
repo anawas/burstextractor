@@ -88,7 +88,7 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
             for i in range(len(events)):
                 row = events.iloc[i]
                 try:
-                    burstprocessor.extract_burst(row, connector)
+                    burstprocessor.extract_radio_burst(row, connector)
                 except:
                     logging.error("Cannot process image")
         else:

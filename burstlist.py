@@ -7,6 +7,8 @@ project: Raumschiff
 import pandas as pd
 import utils.timeutils
 import requests
+import os
+import datetime
 
 BASE_URL = f"http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
     
@@ -48,10 +50,28 @@ def download_burst_list(select_year, select_month):
     """
     # Check for valid date has been done in main
     # timeutils.check_valid_date(select_year, select_month)
-    year, month,day = utils.timeutils.adjust_year_month_day(select_year, select_month)
-
+    year, month,day  = utils.timeutils.adjust_year_month_day(select_year, select_month)
     filename = f"e-CALLISTO_{year}_{month}.txt"
+    if burstlist_exists(filename):
+        return filename
     flare_list = requests.get(f"{BASE_URL}/{year}/{filename}")
     with open(filename, "w") as f:
         f.write(flare_list.content.decode("utf-8"))
     return filename
+
+def burstlist_exists(filename):
+    if not os.path.exists(filename):
+        return False
+    
+    # Get creation time
+    f_stats = os.stat(filename)
+    b_time = datetime.datetime.fromtimestamp(f_stats.st_ctime)
+    now = datetime.datetime.now()
+
+    # if file is older than 6 hours then reload
+    age_hrs = (now-b_time).days*24 + (now-b_time).seconds/3600 
+    if age_hrs >= 6:
+        return False
+
+    # No need to download the file
+    return True

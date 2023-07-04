@@ -17,7 +17,7 @@ def event_times():
 @pytest.fixture()
 def event_dates():
     dates = {}
-    dates[(2022, 2)] = ("2022", "02")
-    dates[(2012, 12)] = ("2012", "12")
+    dates[(2022, 2, 2)] = ("2022", "02", "02")
+    dates[(2012, 12, 29)] = ("2012", "12", "29")
 
     return dates

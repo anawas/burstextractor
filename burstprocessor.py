@@ -27,7 +27,7 @@ def prettify(spectro):
     return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
                                      amount=0.05, change_points=True).denoise()
 
-def extract_radio_burst(event, connector:wdav.WebdavConnector=None):
+def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:

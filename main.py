@@ -24,9 +24,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     print(f"\n Radiospectra version = {__version__}\n")
 
     utils.timeutils.check_valid_date(year, month, day)
-    m = str(month).zfill(2)
-    if day > 0:
-        d = str(day).zfill(2)
+    year, m, d = utils.timeutils.adjust_year_month_day(year, month, day)
 
     connector = None
     if remote:

@@ -48,7 +48,7 @@ def download_burst_list(select_year, select_month):
     """
     # Check for valid date has been done in main
     # timeutils.check_valid_date(select_year, select_month)
-    year, month = utils.timeutils.adjust_year_month(select_year, select_month)
+    year, month,day = utils.timeutils.adjust_year_month_day(select_year, select_month)
 
     filename = f"e-CALLISTO_{year}_{month}.txt"
     flare_list = requests.get(f"{BASE_URL}/{year}/{filename}")

@@ -13,6 +13,7 @@ import datetime
 import logging
 import os
 import webdav.WebdavConnector as wdav
+import multiprocessing
 
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
@@ -42,8 +43,21 @@ def main(year:int = typer.Option(..., help="Observation year"),
         pref_date = f"{year}{m}{d}"
 
     burst_list = burstlist.process_burst_list(filename, date=pref_date)
+    observations = extract_bursts(burst_list, type, connector=connector)
+    processes = []
+    if len(observations) > 0:
+        for obs in observations:
+            obs.create_spectrogram()
+            p = multiprocessing.Process(target=obs.create_spectrogram)
+            p.start()
+            processes.append(p)
+    for p in processes:
+        p.join()
+    
+    for obs in observations:
+        obs.write_observation()
 
-    extract_bursts(burst_list, type, connector=connector)
+
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 
 
@@ -58,6 +72,7 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
         index = burst_types.index(chosen_type.upper())
         types_to_process.append(burst_types[index])
     
+    observation = list()
     for type in types_to_process:
         events = burst_list.loc[burst_list["Type"] == type]
         if len(events) > 0:
@@ -65,12 +80,13 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
             for i in range(len(events)):
                 row = events.iloc[i]
                 try:
-                    burstprocessor.extract_radio_burst(row, connector)
-                except:
-                    logging.error("Cannot process image")
+                    observation += burstprocessor.extract_radio_burst(row, connector)
+                except BaseException as e:
+                    logging.error(f"Cannot process image\n{e.args}")
+                    
         else:
             print(f"No events of type {type} found")
-
+    return observation
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,

@@ -15,6 +15,7 @@ import datetime
 import logging
 import os
 from validation import snr
+from Observation import RadioBurstObservation
 
 BASE_DIR = "temp/" # eCallisto/bursts"
 
@@ -57,8 +58,10 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
             connector.make_dir(path)
 
 
-    event_start = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
-    event_end = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {end.hour}:{end.minute}"
+    event_start_str = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
+    event_start = datetime.datetime.strptime(event_start_str, "%Y/%m/%d %H:%M")
+    event_end_str = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {end.hour}:{end.minute}"
+    event_end = datetime.datetime.strptime(event_end_str, "%Y/%m/%d %H:%M")
     instruments = event['Instruments'].split(',')
     for i in range(len(instruments)):
         instruments[i] = instruments[i].strip()
@@ -83,7 +86,9 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
         # We skip those entries
         if instruments[i] == "e-Callisto":
             instruments.remove(instruments[i])
-
+    
+    observation_list = list()
+    
     for instr in instruments:
         # Data from instruments marked with () or [] are either uncertain or messed up.
         # We don't process them
@@ -91,10 +96,17 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
 
             logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:
+                obs = RadioBurstObservation()
+                obs.instrument = instr
+                obs.event_time_start = event_start
+                obs.event_time_end = event_end
+                obs.radio_burst_type = str(event['Type'])
+                observation_list.append(obs)
+                """
                 s = CallistoSpectrogram.from_range(
                     instr, event_start, event_end)
                 interesting = s.in_interval(event_start, event_end)
-
+                
                 # the last row in the masked array contains all nan, this we ignore it
                 pretty = prettify(interesting)
                 spec_max = np.nanmax(pretty.data)
@@ -126,11 +138,13 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
                     filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
                     connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=False)
                     connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=False)
+                    """
             except ValueError:
                 logging.error(f"No data for instrument {instr} on {event['Date']} at {start.strftime('%H:%M')} to {end.strftime('%H:%M')}")
             except BaseException as e:
                 logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)
                 continue
+    return observation_list
 
 

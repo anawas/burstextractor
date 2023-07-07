@@ -91,7 +91,7 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO,
                     filename='app.log', filemode='a',
-                    format='%(levelname)s - %(message)s')
+                    format='%(asctime)s:%(name)s:%(levelname)s - %(message)s')
 
     typer.run(main)
  

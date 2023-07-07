@@ -41,15 +41,20 @@ def process_burst_list(filename, date=None) -> pd.DataFrame:
 def download_burst_list(select_year, select_month):
     """
     The burst list contains all (manually) detected radio bursts per
-    month and year. This function gets the file from the server.
+    month and year. This function gets the file from the server, if 
+    necessary (i.e. not available or older than 6 hrs.)
+    Parameters:
+    int:year of the event
+    int:month of the event
 
-    Returns: the filename of the list.
-             I decided not to return the content but rather the
-             location of the file. This keeps the data for further
-             processing with other tools if needed.
+    Returns: 
+    str:the filename of the list.
+    I decided not to return the content but rather the
+    location of the file. This keeps the data for further
+    processing with other tools if needed.
     """
-    # Check for valid date has been done in main
-    # timeutils.check_valid_date(select_year, select_month)
+    
+    # Check for valid date has been done in main    
     year, month,day  = utils.timeutils.adjust_year_month_day(select_year, select_month)
     filename = f"e-CALLISTO_{year}_{month}.txt"
     if burstlist_exists(filename):

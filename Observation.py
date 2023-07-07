@@ -20,6 +20,12 @@ class RadioBurstObservation:
         self.__spec_max = 0.0
 
         self.__logger = logging.getLogger(__name__)
+        self.__set_logger()
+
+    def __set_logger():
+        """
+        Define logging for this class
+        """
         formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s - %(message)s')
         datei_handler = logging.FileHandler('observations.log', 'w')
         datei_handler.setFormatter(formatter)
@@ -53,7 +59,7 @@ class RadioBurstObservation:
         filename = os.path.join(".", f"{self.instrument}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}")
         print(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
-            print("snr undetermined - not writing")
+            self.__logger.info("snr undetermined - not writing")
             return
         
         plt.ioff()

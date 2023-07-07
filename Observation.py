@@ -22,7 +22,7 @@ class RadioBurstObservation:
         self.__logger = logging.getLogger(__name__)
         self.__set_logger()
 
-    def __set_logger():
+    def __set_logger(self):
         """
         Define logging for this class
         """
@@ -40,6 +40,13 @@ class RadioBurstObservation:
         self.spectrum = self.spectrum.subtract_bg("constbacksub", "elimwrongchannels") 
         self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
         
+    def suggest_filename(self) -> str:
+        """
+        Suggests the file name based on the metadata. This name is chosen according
+        to e-Callisto standards 
+        """
+        return f"{self.instrument}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}"
+    
     def create_spectrogram(self):
         self.spectrum = CallistoSpectrogram.from_range(
                 self.instrument, self.event_time_start, self.event_time_end)
@@ -55,8 +62,8 @@ class RadioBurstObservation:
         # Adding snr to the fits header for further reference
         self.spectrum.header.append(("snr", self.snr))
 
-    def write_observation(self):
-        filename = os.path.join(".", f"{self.instrument}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}")
+    def write_observation(self, connector=None):
+        filename = os.path.join(".", self.suggest_filename())
         print(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
             self.__logger.info("snr undetermined - not writing")
@@ -68,10 +75,12 @@ class RadioBurstObservation:
         self.spectrum.plot(fig, vmin=0, vmax=self.__spec_max*0.6, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()
 
-        plt.savefig(f"{filename}.jpg")
-        plt.close(fig)
-        self.spectrum.save(f"{filename}.fit.gz")
-
+        if connector is None:
+            plt.savefig(f"{filename}.jpg")
+            plt.close(fig)
+            self.spectrum.save(f"{filename}.fit.gz")
+        else:
+            self.__logger.error("Connector not supported yet")
 
     def __repr__(self) -> str:
         return f"{self.instrument} - {self.event_time_start} - {self.event_time_end}"

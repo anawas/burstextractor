@@ -29,7 +29,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
 
     connector = None
     if remote:
-        print("Connect to raumschiff server")
+        logging.debug("Connect to raumschiff server")
         connector = wdav.WebdavConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
@@ -47,7 +47,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     processes = []
     if len(observations) > 0:
         for obs in observations:
-            obs.create_spectrogram()
+            obs.create_spectrogram(prettify=False)
             p = multiprocessing.Process(target=obs.create_spectrogram)
             p.start()
             processes.append(p)
@@ -55,12 +55,10 @@ def main(year:int = typer.Option(..., help="Observation year"),
         p.join()
     
     for obs in observations:
-        obs.write_observation()
+        obs.write_observation(connector=None)
 
 
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
-
-
 
 def extract_bursts(burst_list, chosen_type: str, connector=None):
     # Let's define all burst types that we want to process

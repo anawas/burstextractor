@@ -1,12 +1,12 @@
 from webdav3.client import Client, RemoteResourceNotFound
 from dotenv import load_dotenv
 import os
-
+import BaseConnector
 """
 Offers basic functionality to interact with webdav server
 Uses a .env file for configuration
 """
-class WebdavConnector:
+class WebdavConnector (BaseConnector):
     def __init__(self) -> None:
         load_dotenv()
         options = {

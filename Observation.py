@@ -39,6 +39,9 @@ class RadioBurstObservation:
         """
         self.spectrum = self.spectrum.subtract_bg("constbacksub", "elimwrongchannels") 
         self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
+        # Recalculate the values
+        self.__spec_max = np.nanmax(self.spectrum.data)
+        self.snr = snr.calculate_snr(self.spectrum.data)
         
     def suggest_filename(self) -> str:
         """
@@ -47,14 +50,16 @@ class RadioBurstObservation:
         """
         return f"{self.instrument}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}"
     
-    def create_spectrogram(self):
+    def create_spectrogram(self, prettify=True):
         self.spectrum = CallistoSpectrogram.from_range(
                 self.instrument, self.event_time_start, self.event_time_end)
         self.spectrum = self.spectrum.in_interval(self.event_time_start, self.event_time_end)
                 
-        self.__prettify()
         self.__spec_max = np.nanmax(self.spectrum.data)
         self.snr = snr.calculate_snr(self.spectrum.data)
+        if prettify:
+            self.__prettify()
+        
         if math.isnan(self.snr):
             self.snr =  -1.0
             self.__logger.info(f"Invalid snr (snr={self.snr}) for {self.instrument} from {self.event_time_start.strftime('%H:%M')} to {self.event_time_end.strftime('%H:%M')}")

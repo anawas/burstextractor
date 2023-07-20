@@ -1,6 +1,12 @@
 from abc import abstractmethod, ABC
 
 class BaseConnector(ABC):
+    """
+     The base class for every connector. A connector is used to put and get files
+     to different file systems, i.e. local hard drive or remote drives. Depending on
+     where you want to save the file(s) you provide a connector that implements the
+     required functionality.
+    """
     def __init__(self) -> None:
         pass
 

@@ -2,9 +2,11 @@ from radiospectra.sources import CallistoSpectrogram
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from validation import snr
+from utils.validation import calculate_snr
 import logging
 import os
+import tempfile
+
 class RadioBurstObservation:
     """
     This class serves as a container to hold the extracted spectra
@@ -41,22 +43,51 @@ class RadioBurstObservation:
         self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
         # Recalculate the values
         self.__spec_max = np.nanmax(self.spectrum.data)
-        self.snr = snr.calculate_snr(self.spectrum.data)
+        self.snr = calculate_snr(self.spectrum)
+
+    def reverse_extract_instrument_name(self, instrument_name, include_number=False):
+        """
+        Convert a lower-case instrument name with underscores to its original hyphenated form.
+
+        Parameters
+        ----------
+        instrument_name : str
+                The instrument name in lower-case with underscores.
+        include_number : bool, optional
+            Whether to include the last number in the output or not. Default is False.
+
+        Returns
+        -------
+        str
+            The original instrument name with hyphens.
+        """
+        # Replace underscores with hyphens and upper all the letters
+        parts = [part.upper() for part in instrument_name.split("_")]
+        if not include_number:
+            # Remove the last part if it's a number
+            if parts[-1].isnumeric():
+                parts.pop()
+        # Join the parts with hyphens and return the result
+        return "-".join(parts)
         
     def suggest_filename(self) -> str:
         """
         Suggests the file name based on the metadata. This name is chosen according
         to e-Callisto standards 
         """
-        return f"{self.instrument}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}"
+        instrument_name = self.reverse_extract_instrument_name(self.instrument, include_number=False)
+        return f"{instrument_name}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}"
     
     def create_spectrogram(self, prettify=True):
+        self.__logger.debug(f"Create spectrogram for {self.__repr__()}")
+        instrument_name = self.reverse_extract_instrument_name(self.instrument, include_number=False)
+        self.__logger.debug(instrument_name)
         self.spectrum = CallistoSpectrogram.from_range(
-                self.instrument, self.event_time_start, self.event_time_end)
+                instrument_name, self.event_time_start, self.event_time_end)
         self.spectrum = self.spectrum.in_interval(self.event_time_start, self.event_time_end)
                 
         self.__spec_max = np.nanmax(self.spectrum.data)
-        self.snr = snr.calculate_snr(self.spectrum.data)
+        self.snr = calculate_snr(self.spectrum.data)
         if prettify:
             self.__prettify()
         
@@ -68,7 +99,6 @@ class RadioBurstObservation:
         self.spectrum.header.append(("snr", self.snr))
 
     def write_observation(self, connector=None):
-        filename = os.path.join(".", self.suggest_filename())
         print(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
             self.__logger.info("snr undetermined - not writing")
@@ -80,13 +110,27 @@ class RadioBurstObservation:
         self.spectrum.plot(fig, vmin=0, vmax=self.__spec_max*0.6, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()
 
-        if connector is None:
-            plt.savefig(f"{filename}.jpg")
+        with tempfile.NamedTemporaryFile() as tmpfile:
+            tmp_filename = tmpfile.name
+            plt.savefig(f"{tmp_filename}.jpg")
             plt.close(fig)
-            self.spectrum.save(f"{filename}.fit.gz")
-        else:
-            self.__logger.error("Connector not supported yet")
+            self.spectrum.save(f"{tmp_filename}.fit.gz")
+            connector.put_file(f"{tmp_filename}.jpg", f"{self.suggest_filename()}.jpg")
+            connector.put_file(f"{tmp_filename}.fit.gz", f"{self.suggest_filename()}.fit.gz")
+            os.unlink(f"{tmp_filename}.jpg")
+            os.unlink(f"{tmp_filename}.fit.gz")
 
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpfile = tempfile.NamedTemporaryFile(mode="w")
+            tmpfile.close()
+            tmp_filename = os.path.join(tmpdir, tmpfile.name)
+            plt.savefig(f"{tmp_filename}.jpg")
+            plt.close(fig)
+            self.spectrum.save(f"{tmp_filename}.fit.gz")
+            connector.put_file(f"{tmp_filename}.jpg", f"{self.suggest_filename()}.jpg")
+            connector.put_file(f"{tmp_filename}.fit.gz", f"{self.suggest_filename()}.fit.gz")
+        """
     def __repr__(self) -> str:
         return f"{self.instrument} - {self.event_time_start} - {self.event_time_end}"
 

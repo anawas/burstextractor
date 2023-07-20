@@ -12,7 +12,8 @@ import burstprocessor
 import datetime
 import logging
 import os
-import webdav.WebdavConnector as wdav
+from connectors.WebdavConnector import WebdavConnector
+from connectors.defaultconnector import DefaultConnector
 import multiprocessing
 
 def main(year:int = typer.Option(..., help="Observation year"), 
@@ -55,7 +56,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
         p.join()
     
     for obs in observations:
-        obs.write_observation(connector=None)
+        obs.write_observation(connector=DefaultConnector())
 
 
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

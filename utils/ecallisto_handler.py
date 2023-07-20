@@ -1,12 +1,14 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import webdav.WebdavConnector as wdav
-import burstlist as bl
-import burstprocessor
 from bs4 import BeautifulSoup
 import urllib3
 import logging
+from ecallisto_ng.data_fetching.get_information import get_tables, get_table_names_with_data_between_dates
+import datetime
+
+import sys
+sys.path.append("/Volumes/VMs/astrophysics/raumschiff/burstextractor")
+import burstlist as bl
+import burstprocessor
+from connectors.defaultconnector import DefaultConnector
 
 BASE_URL = "http://soleil80.cs.technik.fhnw.ch/solarradio/data/2002-20yy_Callisto/"
 
@@ -18,6 +20,17 @@ def get_instrument(filename:str) -> str:
     if len(parts) != 4:
         return ""
     return parts[0]
+    
+def get_instruments_for_date_api(date:str, time:str) -> list:
+    t = time.split("-")
+
+    date_time = datetime.datetime.strptime(f"{date} {t[0].strip()}", "%Y%m%d %H:%M")
+    start = date_time - datetime.timedelta(minutes=15)
+    end = date_time + datetime.timedelta(hours=1)
+    return get_table_names_with_data_between_dates(
+        start_datetime=start.strftime("%Y-%m-%d %H:%M"),
+        end_datetime=end.strftime("%Y-%m-%d %H:%M")
+    )
     
 
 def get_instruments_for_date(date:str) -> set:
@@ -57,7 +70,7 @@ print(f"Found {len(ecal_events)} events with e-Callisto instrument")
 dfc = ecal_events.copy()
 for i in range(len(ecal_events)):
     try:
-        instruments_in_service = get_instruments_for_date(ecal_events.iloc[i]["Date"])
+        instruments_in_service = get_instruments_for_date_api(ecal_events.iloc[i]["Date"], ecal_events.iloc[i]["Time"])
     except urllib3.exceptions.RequestError as e:
         print(f"ERROR -- Could not get instruments for day")
         print(e.url)
@@ -78,4 +91,12 @@ for i in range(len(ecal_events)):
 dfc.to_csv("list.csv", sep="\t", index=False)
 
 for i in range(len(dfc)):
-    burstprocessor.extract_burst(dfc.iloc[i])
+    observations = burstprocessor.extract_radio_burst(dfc.iloc[i])
+    for obs in observations:
+        try:
+            obs.create_spectrogram()
+        except BaseException:
+            logging.error(f"Could not get spectrogram for {obs.instrument}")
+            continue
+        obs.write_observation(connector=DefaultConnector())
+

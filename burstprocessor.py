@@ -8,13 +8,13 @@ project: Raumschiff
 import matplotlib.pyplot as plt
 import numpy as np
 from radiospectra.sources import CallistoSpectrogram
-import webdav.WebdavConnector as wdav
+import connectors.WebdavConnector as wdav
 import tempfile
 import utils.timeutils
 import datetime
 import logging
 import os
-from validation import snr
+from utils.validation import calculate_snr
 from Observation import RadioBurstObservation
 
 BASE_DIR = "temp/" # eCallisto/bursts"

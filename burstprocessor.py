@@ -23,7 +23,8 @@ def prettify(spectro):
     Applies some error corrections to the spectrogram. Those shall make the
     spectrogram look nicer.
     """
-    no_bg = spectro.subtract_bg("constbacksub", "elimwrongchannels") 
+    #no_bg = spectro.subtract_bg("constbacksub", "elimwrongchannels") 
+    no_bg = spectro.elimwrongchannels()  # according to meeting 21.7.23
     return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
                                      amount=0.05, change_points=True).denoise()
 

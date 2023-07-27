@@ -17,16 +17,16 @@ import os
 from utils.validation import calculate_snr
 from Observation import RadioBurstObservation
 
-BASE_DIR = "temp/" # eCallisto/bursts"
+BASE_DIR = "eCallisto/bursts"
 
 def prettify(spectro):
     """
     Applies some error corrections to the spectrogram. Those shall make the
     spectrogram look nicer.
     """
-    no_bg = spectro.subtract_bg("constbacksub", "elimwrongchannels") 
-    return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
-                                     amount=0.05, change_points=True).denoise()
+    return spectro.subtract_bg("constbacksub", "elimwrongchannels") 
+    # return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
+                                     # amount=0.05, change_points=True).denoise()
 
 def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
     # There may be a typo in the event time. If so the time cannot be parsed.

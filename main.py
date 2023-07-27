@@ -5,6 +5,7 @@ author: Andreas Wassmer
 project: Raumschiff
 """
 import typer
+from tqdm import tqdm
 from radiospectra import __version__
 import utils.timeutils
 import burstlist
@@ -15,6 +16,8 @@ import os
 from connectors.WebdavConnector import WebdavConnector
 from connectors.defaultconnector import DefaultConnector
 import multiprocessing
+from concurrent.futures import ProcessPoolExecutor, Future, as_completed, wait, ALL_COMPLETED
+
 
 def main(year:int = typer.Option(..., help="Observation year"), 
          month:int = typer.Option(..., help="Obervation month"),
@@ -32,6 +35,8 @@ def main(year:int = typer.Option(..., help="Observation year"),
     if remote:
         logging.debug("Connect to raumschiff server")
         connector = wdav.WebdavConnector()
+    else:
+        connector = DefaultConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")
@@ -45,18 +50,11 @@ def main(year:int = typer.Option(..., help="Observation year"),
 
     burst_list = burstlist.process_burst_list(filename, date=pref_date)
     observations = extract_bursts(burst_list, type, connector=connector)
-    processes = []
     if len(observations) > 0:
-        for obs in observations:
-            obs.create_spectrogram(prettify=False)
-            p = multiprocessing.Process(target=obs.create_spectrogram)
-            p.start()
-            processes.append(p)
-    for p in processes:
-        p.join()
+        with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()-2) as executor:
+            results = [executor.submit(obs.write_observation, DefaultConnector()) for obs in observations]
     
-    for obs in observations:
-        obs.write_observation(connector=DefaultConnector())
+            wait(results, return_when=ALL_COMPLETED)
 
 
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")

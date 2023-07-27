@@ -39,9 +39,10 @@ class RadioBurstObservation:
         Applies some error corrections to the spectrogram. Those shall make the
         spectrogram look nicer.
         """
-        self.spectrum = self.spectrum.subtract_bg("constbacksub", "elimwrongchannels") 
-        self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
+        self.spectrum = self.spectrum.subtract_bg("elimwrongchannels", "constbacksub")
+        # self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
         # Recalculate the values
+        # self.spectrum.elimwrongchannels(overwrite=True)
         self.__spec_max = np.nanmax(self.spectrum.data)
         self.snr = calculate_snr(self.spectrum)
 
@@ -80,12 +81,11 @@ class RadioBurstObservation:
     
     def create_spectrogram(self, prettify=True):
         self.__logger.debug(f"Create spectrogram for {self.__repr__()}")
-        instrument_name = self.reverse_extract_instrument_name(self.instrument, include_number=False)
+        instrument_name = self.instrument # self.reverse_extract_instrument_name(self.instrument, include_number=False)
         self.__logger.debug(instrument_name)
         self.spectrum = CallistoSpectrogram.from_range(
                 instrument_name, self.event_time_start, self.event_time_end)
         self.spectrum = self.spectrum.in_interval(self.event_time_start, self.event_time_end)
-                
         self.__spec_max = np.nanmax(self.spectrum.data)
         self.snr = calculate_snr(self.spectrum.data)
         if prettify:
@@ -98,8 +98,10 @@ class RadioBurstObservation:
         # Adding snr to the fits header for further reference
         self.spectrum.header.append(("snr", self.snr))
 
+
     def write_observation(self, connector=None):
-        print(f"Writing for instrument {self.instrument}")
+        self.create_spectrogram(prettify=True)
+        self.__logger.debug(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
             self.__logger.info("snr undetermined - not writing")
             return
@@ -107,7 +109,7 @@ class RadioBurstObservation:
         plt.ioff()
         fig = plt.figure(figsize=(6,4))
         assert isinstance(self.spectrum, CallistoSpectrogram)
-        self.spectrum.plot(fig, vmin=0, vmax=self.__spec_max*0.6, cmap=plt.get_cmap('plasma'))
+        self.spectrum.plot(fig, vmin=-2, vmax=17, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()
 
         with tempfile.NamedTemporaryFile() as tmpfile:
@@ -115,8 +117,8 @@ class RadioBurstObservation:
             plt.savefig(f"{tmp_filename}.jpg")
             plt.close(fig)
             self.spectrum.save(f"{tmp_filename}.fit.gz")
-            connector.put_file(f"{tmp_filename}.jpg", f"{self.suggest_filename()}.jpg")
-            connector.put_file(f"{tmp_filename}.fit.gz", f"{self.suggest_filename()}.fit.gz")
+            connector.put_file(f"{tmp_filename}.jpg", f"temp/{self.suggest_filename()}.jpg")
+            connector.put_file(f"{tmp_filename}.fit.gz", f"temp/{self.suggest_filename()}.fit.gz")
             os.unlink(f"{tmp_filename}.jpg")
             os.unlink(f"{tmp_filename}.fit.gz")
 

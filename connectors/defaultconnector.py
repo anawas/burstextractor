@@ -10,7 +10,7 @@ class DefaultConnector(BaseConnector):
     """
 
     def __init__(self) -> None:
-        pass
+        self.base_dir = ""
 
     def list_dir(self, dir_name:str = None) -> list:
         dir = Path(dir_name)

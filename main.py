@@ -30,6 +30,9 @@ def main(year:int = typer.Option(..., help="Observation year"),
     utils.timeutils.check_valid_date(year, month, day)
     year, m, d = utils.timeutils.adjust_year_month_day(year, month, day)
 
+    if not os.path.isdir("logs"):
+        os.mkdir("logs")
+        
     connector = None
     BASE_DIR = "eCallisto/bursts"
     if remote:
@@ -38,6 +41,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
         connector.base_dir = "temp"
     else:
         connector = defaultconnector.DefaultConnector()
+        connector.base_dir = BASE_DIR
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")
@@ -54,7 +58,6 @@ def main(year:int = typer.Option(..., help="Observation year"),
     if len(observations) > 0:
         with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()-2) as executor:
             results = [executor.submit(obs.write_observation, connector) for obs in observations]
-    
             wait(results, return_when=ALL_COMPLETED)
 
 

@@ -41,7 +41,8 @@ class DefaultConnector(BaseConnector):
         file is copied to the new location. The original file is unchanged.
         For local file systems this method works the same as get_file.
         """
-        self.get_file(remote_name, local_name)
+        path = os.path.join(self.base_dir, remote_name)
+        self.get_file(path, local_name)
 
     def make_dir(self, dir_name:str):
         """

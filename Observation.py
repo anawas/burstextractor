@@ -7,6 +7,8 @@ import logging
 import os
 import sys
 import tempfile
+import multiprocessing
+import datetime
 
 class RadioBurstObservation:
     """
@@ -22,18 +24,8 @@ class RadioBurstObservation:
         self.spectrum: CallistoSpectrogram = None
         self.__spec_max = 0.0
 
-        self.__logger = logging.getLogger("RadioBurstObservation")
-        self.__set_logger()
-
-    def __set_logger(self):
-        """
-        Define logging for this class
-        """
-        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s - %(message)s')
-        datei_handler = logging.FileHandler('observations.log', 'w')
-        datei_handler.setFormatter(formatter)
-        self.__logger.addHandler(datei_handler)
-        self.__logger.setLevel(logging.DEBUG)
+        # logger is set in method write_observation. See comment there.
+        self.__logger = None
 
     def __prettify(self):
         """
@@ -101,10 +93,19 @@ class RadioBurstObservation:
 
 
     def write_observation(self, connector=None):
+        # Because this method is run in multiprocessing env.
+        # we must create an individual file handle for it
+        self.__logger = logging.getLogger(f'observations_{multiprocessing.current_process().pid}')
+        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s - %(message)s')
+        datei_handler = logging.FileHandler(f'logs/observations_{multiprocessing.current_process().pid}_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}.log', 'w+')
+        datei_handler.setFormatter(formatter)
+        self.__logger.setLevel(logging.INFO)
+        self.__logger.addHandler(datei_handler)
+
         self.create_spectrogram(prettify=True)
         self.__logger.debug(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
-            self.__logger.info("snr undetermined - not writing")
+            self.__logger.info(f"snr undetermined for {self.instrument} - not writing")
             return
         
         plt.ioff()

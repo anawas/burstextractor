@@ -100,43 +100,6 @@ def extract_radio_burst(event, connector=None) -> list:
                 obs.event_time_end = event_end
                 obs.radio_burst_type = str(event['Type'])
                 observation_list.append(obs)
-                """
-                s = CallistoSpectrogram.from_range(
-                    instr, event_start, event_end)
-                interesting = s.in_interval(event_start, event_end)
-                
-                # the last row in the masked array contains all nan, this we ignore it
-                pretty = prettify(interesting)
-                spec_max = np.nanmax(pretty.data)
-                quality = snr.calculate_snr(pretty.data)
-                logging.debug(f"{instr} snr: {quality}")
-
-                # Adding snr to the fits header for further reference
-                pretty.header.append(("snr", quality))
-                plt.ioff()
-                fig = plt.figure(figsize=(6,4))
-                pretty.plot(fig, vmin=0, vmax=spec_max*0.6, cmap=plt.get_cmap('plasma'))
-                fig.tight_layout()
-                
-                filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
-                if connector is None:
-                    plt.savefig(f"{filename}.jpg")
-                    plt.close(fig)
-                    pretty.save(f"{filename}.fit.gz")
-                else:
-                    print("Writing files to server")
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        tmpfile = tempfile.NamedTemporaryFile(mode="w")
-                        tmpfile.close()
-                        tmp_filename = os.path.join(tmpdir, tmpfile.name)
-                        plt.savefig(f"{tmp_filename}.jpg")
-                        plt.close(fig)
-                        pretty.save(f"{tmp_filename}.fit.gz")
-                        
-                    filename = os.path.join(path, f"{instr}_{event['Date']}_{start.strftime('%H%M')}_{end.strftime('%H%M')}")
-                    connector.put_file(remote_name=f"{filename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=False)
-                    connector.put_file(remote_name=f"{filename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=False)
-                    """
             except ValueError:
                 logging.error(f"No data for instrument {instr} on {event['Date']} at {start.strftime('%H:%M')} to {end.strftime('%H:%M')}")
             except BaseException as e:

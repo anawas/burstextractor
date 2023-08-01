@@ -17,7 +17,8 @@ import os
 from utils.validation import calculate_snr
 from Observation import RadioBurstObservation
 
-BASE_DIR = "eCallisto/bursts"
+# BASE_DIR = "eCallisto/bursts"
+BASE_DIR = "temp"
 
 def prettify(spectro):
     """
@@ -28,7 +29,7 @@ def prettify(spectro):
     # return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
                                      # amount=0.05, change_points=True).denoise()
 
-def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
+def extract_radio_burst(event, connector=None) -> list:
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:
@@ -53,9 +54,7 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
         if not os.path.exists(path):
             os.makedirs(path)
     else:
-        if not connector.check_dir_exists(path):
-            print(f"Creating {path}")
-            connector.make_dir(path)
+        connector.make_dir(path)
 
 
     event_start_str = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
@@ -93,8 +92,7 @@ def extract_radio_burst(event, connector:wdav.WebdavConnector=None) -> list:
         # Data from instruments marked with () or [] are either uncertain or messed up.
         # We don't process them
         if not instr.startswith('(') and not instr.startswith('['):
-
-            logging.debug(f"Processing instrument {instr} for event from {event_start} to {event_end}")
+            logging.info(f"Processing instrument {instr} for event from {event_start} to {event_end}")
             try:
                 obs = RadioBurstObservation()
                 obs.instrument = instr

@@ -13,8 +13,7 @@ import burstprocessor
 import datetime
 import logging
 import os
-from connectors.WebdavConnector import WebdavConnector
-from connectors.defaultconnector import DefaultConnector
+from connectors import webdavconnector, defaultconnector
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor, Future, as_completed, wait, ALL_COMPLETED
 
@@ -33,10 +32,10 @@ def main(year:int = typer.Option(..., help="Observation year"),
 
     connector = None
     if remote:
-        logging.debug("Connect to raumschiff server")
-        connector = wdav.WebdavConnector()
+        logging.info("Connect to raumschiff server")
+        connector = webdavconnector.WebdavConnector()
     else:
-        connector = DefaultConnector()
+        connector = defaultconnector.DefaultConnector()
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
     logging.info(f"----- Processing data for {year}-{m} -----\n")
@@ -52,7 +51,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     observations = extract_bursts(burst_list, type, connector=connector)
     if len(observations) > 0:
         with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()-2) as executor:
-            results = [executor.submit(obs.write_observation, DefaultConnector()) for obs in observations]
+            results = [executor.submit(obs.write_observation, connector) for obs in observations]
     
             wait(results, return_when=ALL_COMPLETED)
 
@@ -73,16 +72,16 @@ def extract_bursts(burst_list, chosen_type: str, connector=None):
     for type in types_to_process:
         events = burst_list.loc[burst_list["Type"] == type]
         if len(events) > 0:
-            print(f"Found {len(events)} event(s) of type {type}")
+            logging.info(f"Found {len(events)} event(s) of type {type}")
             for i in range(len(events)):
                 row = events.iloc[i]
                 try:
                     observation += burstprocessor.extract_radio_burst(row, connector)
                 except BaseException as e:
-                    logging.error(f"Cannot process image\n{e.args}")
+                    logging.error(f"Cannot process image\nCause: {e.__repr__()}")
                     
         else:
-            print(f"No events of type {type} found")
+            logging.info(f"No events of type {type} found")
     return observation
 
 if __name__ == "__main__":

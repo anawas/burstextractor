@@ -5,6 +5,7 @@ import math
 from utils.validation import calculate_snr
 import logging
 import os
+import sys
 import tempfile
 
 class RadioBurstObservation:
@@ -21,7 +22,7 @@ class RadioBurstObservation:
         self.spectrum: CallistoSpectrogram = None
         self.__spec_max = 0.0
 
-        self.__logger = logging.getLogger(__name__)
+        self.__logger = logging.getLogger("RadioBurstObservation")
         self.__set_logger()
 
     def __set_logger(self):
@@ -39,7 +40,7 @@ class RadioBurstObservation:
         Applies some error corrections to the spectrogram. Those shall make the
         spectrogram look nicer.
         """
-        self.spectrum = self.spectrum.subtract_bg("elimwrongchannels", "constbacksub")
+        self.spectrum = self.spectrum.subtract_bg("constbacksub", "elimwrongchannels")
         # self.spectrum = self.spectrum.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1, amount=0.05, change_points=True).denoise()
         # Recalculate the values
         # self.spectrum.elimwrongchannels(overwrite=True)
@@ -117,22 +118,12 @@ class RadioBurstObservation:
             plt.savefig(f"{tmp_filename}.jpg")
             plt.close(fig)
             self.spectrum.save(f"{tmp_filename}.fit.gz")
-            connector.put_file(f"{tmp_filename}.jpg", f"temp/{self.suggest_filename()}.jpg")
-            connector.put_file(f"{tmp_filename}.fit.gz", f"temp/{self.suggest_filename()}.fit.gz")
+            remotename = os.path.join("temp", f"type_{self.radio_burst_type.capitalize()}", f"{self.suggest_filename()}")
+            connector.put_file(remote_name=f"{remotename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=True)
+            connector.put_file(remote_name=f"{remotename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=True)
             os.unlink(f"{tmp_filename}.jpg")
             os.unlink(f"{tmp_filename}.fit.gz")
 
-        """
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpfile = tempfile.NamedTemporaryFile(mode="w")
-            tmpfile.close()
-            tmp_filename = os.path.join(tmpdir, tmpfile.name)
-            plt.savefig(f"{tmp_filename}.jpg")
-            plt.close(fig)
-            self.spectrum.save(f"{tmp_filename}.fit.gz")
-            connector.put_file(f"{tmp_filename}.jpg", f"{self.suggest_filename()}.jpg")
-            connector.put_file(f"{tmp_filename}.fit.gz", f"{self.suggest_filename()}.fit.gz")
-        """
     def __repr__(self) -> str:
         return f"{self.instrument} - {self.event_time_start} - {self.event_time_end}"
 

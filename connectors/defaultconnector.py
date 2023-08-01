@@ -27,18 +27,18 @@ class DefaultConnector(BaseConnector):
         if not local_file_name is None:
             if not Path(file_name).exists:
                 raise FileNotFoundError
-            shutil.copy(file_name, local_file_name)
+            shutil.copy(local_file_name, file_name)
 
-    def put_file(self, file_name:str, local_file_name:str=None, overwrite:bool=False):
+    def put_file(self, remote_name:str=None, local_name:str=None, overwrite:bool=False):
         """
         Puts the file with on the file system with name file_name . Raises an exception if 
         the file cannot be written. 
         If local_file_name is None, nothing happens. This is because the file
-        already exists on the file system. If local_file_name is given, then the
+        already exists on the file system. If local_name is given, then the
         file is copied to the new location. The original file is unchanged.
         For local file systems this method works the same as get_file.
         """
-        self.get_file(file_name, local_file_name)
+        self.get_file(remote_name, local_name)
 
     def make_dir(self, dir_name:str):
         """

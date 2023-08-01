@@ -6,6 +6,9 @@ from connectors.baseconnector import BaseConnector
 """
 Offers basic functionality to interact with webdav server
 Uses a .env file for configuration
+version 1.0
+author: Andreas Wassmer
+project: Raumschiff
 """
 class WebdavConnector (BaseConnector):
     def __init__(self) -> None:

@@ -7,6 +7,9 @@ class DefaultConnector(BaseConnector):
     """
     This class implements the default connector, which connects to the local
     file system.
+    version 1.0
+    author: Andreas Wassmer
+    project: Raumschiff
     """
 
     def __init__(self) -> None:

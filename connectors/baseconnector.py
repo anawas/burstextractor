@@ -6,6 +6,9 @@ class BaseConnector(ABC):
      to different file systems, i.e. local hard drive or remote drives. Depending on
      where you want to save the file(s) you provide a connector that implements the
      required functionality.
+    version 1.0
+    author: Andreas Wassmer
+    project: Raumschiff
     """
     def __init__(self) -> None:
         pass

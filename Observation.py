@@ -118,7 +118,7 @@ class RadioBurstObservation:
             plt.savefig(f"{tmp_filename}.jpg")
             plt.close(fig)
             self.spectrum.save(f"{tmp_filename}.fit.gz")
-            remotename = os.path.join("temp", f"type_{self.radio_burst_type.capitalize()}", f"{self.suggest_filename()}")
+            remotename = os.path.join(f"type_{self.radio_burst_type.upper()}", f"{self.suggest_filename()}")
             connector.put_file(remote_name=f"{remotename}.jpg", local_name=f"{tmp_filename}.jpg", overwrite=True)
             connector.put_file(remote_name=f"{remotename}.fit.gz", local_name=f"{tmp_filename}.fit.gz", overwrite=True)
             os.unlink(f"{tmp_filename}.jpg")

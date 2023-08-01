@@ -31,9 +31,11 @@ def main(year:int = typer.Option(..., help="Observation year"),
     year, m, d = utils.timeutils.adjust_year_month_day(year, month, day)
 
     connector = None
+    BASE_DIR = "eCallisto/bursts"
     if remote:
         logging.info("Connect to raumschiff server")
         connector = webdavconnector.WebdavConnector()
+        connector.base_dir = "temp"
     else:
         connector = defaultconnector.DefaultConnector()
 

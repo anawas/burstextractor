@@ -17,9 +17,6 @@ import os
 from utils.validation import calculate_snr
 from Observation import RadioBurstObservation
 
-BASE_DIR = "eCallisto/bursts"
-# BASE_DIR = "temp"
-
 def prettify(spectro):
     """
     Applies some error corrections to the spectrogram. Those shall make the
@@ -48,7 +45,7 @@ def extract_radio_burst(event, connector=None) -> list:
         end = end + datetime.timedelta(minutes=1)
 
     date = str(event['Date'])
-    path = os.path.join(BASE_DIR, f"type_{str(event['Type'])}")
+    path = os.path.join(connector.base_dir, f"type_{str(event['Type'])}")
 
     if connector is None:
         if not os.path.exists(path):

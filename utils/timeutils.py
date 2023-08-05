@@ -1,6 +1,5 @@
 import datetime
 
-
 def extract_and_correct_time(event_time):
     """
     the event time may have typos in it, i.e. 01_55 instead of 01:55.
@@ -45,17 +44,19 @@ def check_valid_date(year, month, day):
     ), "The year {} lies in the future".format(year)
 
 
-def adjust_year_month(year, month):
+def adjust_year_month_day(year, month, day=None):
     """
     We'll work with string numbers in function download_burst_list.
     Here we convert the arguments to strings and pads the month
     to length 2, if necessary.
 
-    Returns: the year and month as strings
+    Returns: the year, month and day as strings with leading 0
     """
-    if month < 10:
-        m = "0" + str(month)
-    else:
-        m = str(month)
+    m = str(month).zfill(2)
 
-    return str(year), m
+    if day is not None:
+        d = str(day).zfill(2)
+    else:
+        d = ""
+
+    return str(year), m, d

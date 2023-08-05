@@ -1,5 +1,7 @@
 import pytest
-from timeutils import extract_and_correct_time, adjust_year_month, check_valid_date
+import sys
+sys.path.insert(0, '..')
+from utils.timeutils import extract_and_correct_time, check_valid_date, adjust_year_month_day
 
 
 def test_extractandcorrecttime(event_times):
@@ -13,7 +15,7 @@ def test_extractandcorrecttime(event_times):
 
 def test_adjustyearmonth(event_dates):
     for d in event_dates:
-        assert adjust_year_month(d[0], d[1]) == event_dates[d]
+        assert adjust_year_month_day(d[0], d[1], d[2]) == event_dates[d]
 
 @pytest.mark.parametrize("year, month, day", [(2024, 3, 1), (2022, 13, 1), (2023, 1, 41), (2022, "12", 1)])
 def test_checkvaliddate(year, month, day):

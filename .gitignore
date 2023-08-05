@@ -34,3 +34,4 @@ _version.py
 *.ipynb
 find_last_date_processed.py
 temp/**
+notebooks/**

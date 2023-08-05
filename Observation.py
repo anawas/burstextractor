@@ -109,7 +109,7 @@ class RadioBurstObservation:
             return
         
         plt.ioff()
-        fig = plt.figure(figsize=(6,4))
+        fig = plt.figure(figsize=(10,6.2))
         assert isinstance(self.spectrum, CallistoSpectrogram)
         self.spectrum.plot(fig, vmin=-2, vmax=17, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()

@@ -38,7 +38,7 @@ def main(year:int = typer.Option(..., help="Observation year"),
     if remote:
         logging.info("Connect to raumschiff server")
         connector = webdavconnector.WebdavConnector()
-        connector.base_dir = "temp"
+        connector.base_dir = BASE_DIR
     else:
         connector = defaultconnector.DefaultConnector()
         connector.base_dir = BASE_DIR

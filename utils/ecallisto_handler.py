@@ -1,18 +1,22 @@
-from bs4 import BeautifulSoup
-import urllib3
-import logging
-from ecallisto_ng.data_fetching.get_information import get_tables, get_table_names_with_data_between_dates
 import datetime
-
+import logging
 import sys
-sys.path.append("/Volumes/VMs/astrophysics/raumschiff/burstextractor")
+
+import urllib3
+from bs4 import BeautifulSoup
+from ecallisto_ng.data_fetching.get_information import (
+    get_table_names_with_data_between_dates)
+
 import burstlist as bl
 import burstprocessor
 from connectors.defaultconnector import DefaultConnector
 
+sys.path.append("/Volumes/VMs/astrophysics/raumschiff/burstextractor")
+
 BASE_URL = "http://soleil80.cs.technik.fhnw.ch/solarradio/data/2002-20yy_Callisto/"
 
-def get_instrument(filename:str) -> str:
+
+def get_instrument(filename: str) -> str:
     """
     Extracts the instruments name from the FITS filename
     """
@@ -20,8 +24,9 @@ def get_instrument(filename:str) -> str:
     if len(parts) != 4:
         return ""
     return parts[0]
-    
-def get_instruments_for_date_api(date:str, time:str) -> list:
+
+
+def get_instruments_for_date_api(date: str, time: str) -> list:
     t = time.split("-")
 
     date_time = datetime.datetime.strptime(f"{date} {t[0].strip()}", "%Y%m%d %H:%M")
@@ -31,9 +36,9 @@ def get_instruments_for_date_api(date:str, time:str) -> list:
         start_datetime=start.strftime("%Y-%m-%d %H:%M"),
         end_datetime=end.strftime("%Y-%m-%d %H:%M")
     )
-    
 
-def get_instruments_for_date(date:str) -> set:
+
+def get_instruments_for_date(date: str) -> set:
     """
     Gets all the instruments that reported on that date
     """
@@ -45,7 +50,7 @@ def get_instruments_for_date(date:str) -> set:
     resp = http.request("GET", url)
     if resp.status != 200:
         raise urllib3.exceptions.RequestError(http, url, None)
-    
+
     page = resp.data
 
     html = BeautifulSoup(page, "html.parser")
@@ -55,9 +60,10 @@ def get_instruments_for_date(date:str) -> set:
         instruments.add(t)
     return instruments
 
+
 logging.basicConfig(level=logging.INFO,
-                filename='ecallistohandler.log', filemode='a',
-                format='%(levelname)s - %(message)s')
+                    filename='ecallistohandler.log', filemode='a',
+                    format='%(levelname)s - %(message)s')
 
 bursts = bl.process_burst_list("e-CALLISTO_2023_06.txt")
 
@@ -72,22 +78,22 @@ for i in range(len(ecal_events)):
     try:
         instruments_in_service = get_instruments_for_date_api(ecal_events.iloc[i]["Date"], ecal_events.iloc[i]["Time"])
     except urllib3.exceptions.RequestError as e:
-        print(f"ERROR -- Could not get instruments for day")
+        print("ERROR -- Could not get instruments for day")
         print(e.url)
-    
+
     print(f"Doing row {i}: Instruments in service: {len(instruments_in_service)}")
-    
+
     n_str = ''
-    for index, I in enumerate(instruments_in_service): #enumerate(list) returns (current position, list[current position]) so if we need to know the current position we use enumerate
+    for index, I in enumerate(instruments_in_service):   # enumerate(list) returns (current position, list[current position]) so if we need to know the current position we use enumerate
         if I == "":
             continue
         if index != len(instruments_in_service)-1:
-            n_str += str(I) + "," #we don't apply the seperator if we're at the end of the list
+            n_str += str(I) + ","   # we don't apply the seperator if we're at the end of the list
         else:
-            n_str += str(I)    
-    
+            n_str += str(I)
+
     dfc.loc[i, "Instruments"] = n_str
-    
+
 dfc.to_csv("list.csv", sep="\t", index=False)
 
 for i in range(len(dfc)):
@@ -99,4 +105,3 @@ for i in range(len(dfc)):
             logging.error(f"Could not get spectrogram for {obs.instrument}")
             continue
         obs.write_observation(connector=DefaultConnector())
-

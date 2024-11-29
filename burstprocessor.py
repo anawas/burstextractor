@@ -5,33 +5,30 @@ version 2.0
 author: Andreas Wassmer
 project: Raumschiff
 """
-import matplotlib.pyplot as plt
-import numpy as np
-from radiospectra.sources import CallistoSpectrogram
-import connectors.WebdavConnector as wdav
-import tempfile
-import utils.timeutils
 import datetime
 import logging
 import os
-from utils.validation import calculate_snr
+
+import utils.timeutils
 from Observation import RadioBurstObservation
+
 
 def prettify(spectro):
     """
     Applies some error corrections to the spectrogram. Those shall make the
     spectrogram look nicer.
     """
-    return spectro.subtract_bg("constbacksub", "elimwrongchannels") 
+    return spectro.subtract_bg("constbacksub", "elimwrongchannels")
     # return no_bg.subtract_bg("subtract_bg_sliding_window", window_width=800, affected_width=1,
-                                     # amount=0.05, change_points=True).denoise()
+    # amount=0.05, change_points=True).denoise()
+
 
 def extract_radio_burst(event, connector=None) -> list:
     # There may be a typo in the event time. If so the time cannot be parsed.
     # We raise an exception, report it in the log an return without processing.
     try:
         start, end = utils.timeutils.extract_and_correct_time(event['Time'])
-    except Exception as ex:
+    except Exception:
         logging.error(f"While processing event {event['Time']} ")
         logging.error("Exception occurred", exc_info=False)
         return
@@ -53,7 +50,6 @@ def extract_radio_burst(event, connector=None) -> list:
     else:
         connector.make_dir(path)
 
-
     event_start_str = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {start.hour}:{start.minute}"
     event_start = datetime.datetime.strptime(event_start_str, "%Y/%m/%d %H:%M")
     event_end_str = f"{date[0:4]}/{date[4:6]}/{date[6:8]} {end.hour}:{end.minute}"
@@ -67,8 +63,9 @@ def extract_radio_burst(event, connector=None) -> list:
             instruments[i] = "MEXICO-LANCE-A"
             instruments.append("MEXICO-LANCE-B")
 
-        # Instrument Malaysia Banting has changed name. Before 2022-07 it was written with 
-        # an underscore '_'. After that there is a dash '-'. We correct this on the fly
+        # Instrument Malaysia Banting has changed name. Before 2022-07 it was
+        # written with an underscore '_'. After that there is a dash '-'.
+        # # We correct this on the fly
         malaysia_alias = ["Malaysia_Banting", "Malaysia-Banting"]
         if instruments[i] in malaysia_alias:
             if instruments[i].find('_') >= 0:
@@ -76,20 +73,22 @@ def extract_radio_burst(event, connector=None) -> list:
             else:
                 new_instr = instruments[i].replace('-', '_')
             instruments.append(new_instr)
-        
-        # Instrument name "e-Callisto" means that there are too many stations to report or, 
-        # PI on vacation or out of office
+
+        # Instrument name "e-Callisto" means that there are too many stations
+        # to report or PI on vacation or out of office
         # We skip those entries
         if instruments[i] == "e-Callisto":
             instruments.remove(instruments[i])
-    
+
     observation_list = list()
-    
+
     for instr in instruments:
-        # Data from instruments marked with () or [] are either uncertain or messed up.
-        # We don't process them
+        # Data from instruments marked with () or [] are either
+        # uncertain or messed up. We don't process them
         if not instr.startswith('(') and not instr.startswith('['):
-            logging.info(f"Processing instrument {instr} for event from {event_start} to {event_end}")
+            logging.info(f"Processing instrument {instr}"
+                         f" for event from {event_start}"
+                         f" to {event_end}")
             try:
                 obs = RadioBurstObservation()
                 obs.instrument = instr
@@ -98,11 +97,13 @@ def extract_radio_burst(event, connector=None) -> list:
                 obs.radio_burst_type = str(event['Type'])
                 observation_list.append(obs)
             except ValueError:
-                logging.error(f"No data for instrument {instr} on {event['Date']} at {start.strftime('%H:%M')} to {end.strftime('%H:%M')}")
-            except BaseException as e:
-                logging.error(f"While processing instrument {instr} for event from {event_start} to {event_end}")
+                logging.error(f"No data for instrument {instr}"
+                              f" on{event['Date']}"
+                              f" at {start.strftime('%H:%M')}"
+                              f" to {end.strftime('%H:%M')}")
+            except BaseException:
+                logging.error(f"While processing instrument {instr}"
+                              " for event from {event_start} to {event_end}")
                 logging.error("Exception occurred", exc_info=True)
                 continue
     return observation_list
-
-

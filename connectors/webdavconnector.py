@@ -1,16 +1,19 @@
-from webdav3.client import Client, RemoteResourceNotFound
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from webdav3.client import Client, RemoteResourceNotFound
+
 from connectors.baseconnector import BaseConnector
 
-"""
-Offers basic functionality to interact with webdav server
-Uses a .env file for configuration
-version 1.0
-author: Andreas Wassmer
-project: Raumschiff
-"""
+
 class WebdavConnector (BaseConnector):
+    """
+    Offers basic functionality to interact with webdav server
+    Uses a .env file for configuration
+    version 1.0
+    author: Andreas Wassmer
+    project: Raumschiff
+    """
     def __init__(self) -> None:
         load_dotenv()
         options = {
@@ -62,7 +65,6 @@ class WebdavConnector (BaseConnector):
         if not self.client.check(path) or overwrite:
             self.client.upload_sync(remote_path=path, local_path=local_name)
 
-    
     def put_file_async(self, remote_name=None, local_name=None, callback=None):
         """
         Uploads a file to webdav server asynchronously
@@ -98,8 +100,9 @@ class WebdavConnector (BaseConnector):
         try:
             self.client.info(dir_name)
             return True
-        except RemoteResourceNotFound as ex:
+        except RemoteResourceNotFound:
             return False
+
 
 if __name__ == "__main__":
     con = WebdavConnector()

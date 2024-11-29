@@ -1,4 +1,5 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
+
 
 class BaseConnector(ABC):
     """
@@ -14,19 +15,19 @@ class BaseConnector(ABC):
         pass
 
     @abstractmethod
-    def list_dir(self, dir_name:str = None) -> list:
+    def list_dir(self, dir_name: str = None) -> list:
         pass
 
     @abstractmethod
-    def get_file(self, file_name:str, local_file_name:str=None):
+    def get_file(self, file_name: str, local_file_name: str = None):
         pass
 
     @abstractmethod
-    def put_file(self, file_name:str, local_file_name:str=None, overwrite:bool=False):
+    def put_file(self, file_name: str, local_file_name: str = None, overwrite: bool = False):
         pass
 
     @abstractmethod
-    def make_dir(self, dir_name:str):
+    def make_dir(self, dir_name: str):
         pass
 
     @abstractmethod

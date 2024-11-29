@@ -1,5 +1,6 @@
 import datetime
 
+
 def extract_and_correct_time(event_time):
     """
     the event time may have typos in it, i.e. 01_55 instead of 01:55.
@@ -28,11 +29,11 @@ def check_valid_date(year, month, day):
     is a valid date. If not, aises an exception.
     """
     days_per_month = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    
+
     assert (
-        len(str(year)) == 4 and type(year) == int
+        len(str(year)) == 4 and type(year) is int
     ), "First argument year must be a 4-digit integer"
-    assert type(month) == int, "Second argument month must be a valid integer"
+    assert type(month) is int, "Second argument month must be a valid integer"
     assert month >= 1 and month <= 12, "Second argument month must be from 1 to 12"
     assert day <= days_per_month[month], f"Month given has only {days_per_month[month]} days"
     if datetime.date.today().year == year:

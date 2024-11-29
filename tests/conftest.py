@@ -1,9 +1,8 @@
 import pytest
 
-"""
-Using fixtures here beacause I think that parametrizing
-the tests clutters the code in this case
-"""
+
+# Using fixtures here beacause I think that parametrizing
+# the tests clutters the code in this case
 @pytest.fixture()
 def event_times():
     times = {}
@@ -13,6 +12,7 @@ def event_times():
     times["12.55-12:56"] = ("12:55", "12:56")
 
     return times
+
 
 @pytest.fixture()
 def event_dates():

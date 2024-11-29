@@ -1,14 +1,16 @@
-from radiospectra.sources import CallistoSpectrogram
-import numpy as np
-import matplotlib.pyplot as plt
-import math
-from utils.validation import calculate_snr
-import logging
-import os
-import sys
-import tempfile
-import multiprocessing
 import datetime
+import logging
+import math
+import multiprocessing
+import os
+import tempfile
+
+import matplotlib.pyplot as plt
+import numpy as np
+from radiospectra.sources import CallistoSpectrogram
+
+from utils.validation import calculate_snr
+
 
 class RadioBurstObservation:
     """
@@ -63,18 +65,18 @@ class RadioBurstObservation:
                 parts.pop()
         # Join the parts with hyphens and return the result
         return "-".join(parts)
-        
+
     def suggest_filename(self) -> str:
         """
         Suggests the file name based on the metadata. This name is chosen according
-        to e-Callisto standards 
+        to e-Callisto standards
         """
         instrument_name = self.reverse_extract_instrument_name(self.instrument, include_number=False)
         return f"{instrument_name}_{self.event_time_start.strftime('%Y%m%d')}_{self.event_time_start.strftime('%H%M')}_{self.event_time_end.strftime('%H%M')}"
-    
+
     def create_spectrogram(self, prettify=True):
         self.__logger.debug(f"Create spectrogram for {self.__repr__()}")
-        instrument_name = self.instrument # self.reverse_extract_instrument_name(self.instrument, include_number=False)
+        instrument_name = self.instrument   # self.reverse_extract_instrument_name(self.instrument, include_number=False)
         self.__logger.debug(instrument_name)
         self.spectrum = CallistoSpectrogram.from_range(
                 instrument_name, self.event_time_start, self.event_time_end)
@@ -83,14 +85,13 @@ class RadioBurstObservation:
         self.snr = calculate_snr(self.spectrum.data)
         if prettify:
             self.__prettify()
-        
+
         if math.isnan(self.snr):
-            self.snr =  -1.0
+            self.snr = -1.0
             self.__logger.info(f"Invalid snr (snr={self.snr}) for {self.instrument} from {self.event_time_start.strftime('%H:%M')} to {self.event_time_end.strftime('%H:%M')}")
 
         # Adding snr to the fits header for further reference
         self.spectrum.header.append(("snr", self.snr))
-
 
     def write_observation(self, connector=None):
         # Because this method is run in multiprocessing env.
@@ -107,9 +108,9 @@ class RadioBurstObservation:
         if self.snr < 0.0:
             self.__logger.info(f"snr undetermined for {self.instrument} - not writing")
             return
-        
+
         plt.ioff()
-        fig = plt.figure(figsize=(10,6.2))
+        fig = plt.figure(figsize=(10, 6.2))
         assert isinstance(self.spectrum, CallistoSpectrogram)
         self.spectrum.plot(fig, vmin=-2, vmax=17, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()
@@ -127,4 +128,3 @@ class RadioBurstObservation:
 
     def __repr__(self) -> str:
         return f"{self.instrument} - {self.event_time_start} - {self.event_time_end}"
-

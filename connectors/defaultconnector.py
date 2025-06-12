@@ -17,11 +17,11 @@ class DefaultConnector(BaseConnector):
     def __init__(self) -> None:
         self.base_dir = ""
 
-    def list_dir(self, dir_name: str = None) -> list:
+    def list_dir(self, dir_name: str) -> list:
         dir = Path(dir_name)
         return [p for p in dir.glob("**/*")]
 
-    def get_file(self, file_name: str, local_file_name: str = None) -> None:
+    def get_file(self, file_name: str, local_file_name: str) -> None:
         """
         Gets the file with name file_name. Raises an exception if the file
         doesn't exist.
@@ -34,7 +34,7 @@ class DefaultConnector(BaseConnector):
                 raise FileNotFoundError
             shutil.copy(local_file_name, file_name)
 
-    def put_file(self, remote_name: str = None, local_name: str = None, overwrite: bool = False):
+    def put_file(self, remote_name: str, local_name: str, overwrite: bool = False):
         """
         Puts the file with on the file system with name file_name . Raises an exception if
         the file cannot be written.

@@ -14,8 +14,7 @@ from concurrent.futures import (ALL_COMPLETED,
 import typer
 from radiospectra import __version__
 
-import burstlist
-import burstprocessor
+from bursts import burstlist, burstprocessor
 import utils.timeutils
 from connectors import defaultconnector, webdavconnector
 

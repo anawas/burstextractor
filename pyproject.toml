@@ -1,10 +1,14 @@
 [build-system]
-requires = [
-         "setuptools>=45",
-         "setuptools_scm[toml]>=6.2",
-         "wheel",
-         ]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
-[tool.setuptools_scm]
-write_to = "./_version.py"
+[project]
+name = "burstprocessor"
+version = "0.1.0"
+description = "Projekt zur Verarbeitung von Beobachtungsdaten"
+authors = [{ name = "Andreas Wassmer", email = "andreas.wassmer@fhnw.ch" }]
+dependencies = []
 
+[tool.setuptools]
+packages = ["connectors", "utils", "burstprocessing", "observation"]
+include-package-data = true

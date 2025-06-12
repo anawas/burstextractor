@@ -12,8 +12,7 @@ import requests
 
 import utils.timeutils
 
-BASE_URL = "http://soleil.i4ds.ch/solarradio/data/BurstLists/"
-+ "2010-yyyy_Monstein"
+BASE_URL = "http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
 
 
 def process_burst_list(filename, date=None) -> pd.DataFrame:

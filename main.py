@@ -8,14 +8,13 @@ import datetime
 import logging
 import multiprocessing
 import os
-from concurrent.futures import (ALL_COMPLETED,
-                                ProcessPoolExecutor, wait)
+from concurrent.futures import ALL_COMPLETED, ProcessPoolExecutor, wait
 
 import typer
 from radiospectra import __version__
 
-from bursts import burstlist, burstprocessor
 import utils.timeutils
+from burstprocessing import burstlist, burstprocessor
 from connectors import defaultconnector, webdavconnector
 
 
@@ -29,7 +28,7 @@ def main(year: int = typer.Option(..., help="Observation year"),
     print(f"\n Radiospectra version = {__version__}\n")
 
     utils.timeutils.check_valid_date(year, month, day)
-    year, m, d = utils.timeutils.adjust_year_month_day(year, month, day)
+    y, m, d = utils.timeutils.adjust_year_month_day(year, month, day)
 
     if not os.path.isdir("logs"):
         os.mkdir("logs")
@@ -45,14 +44,14 @@ def main(year: int = typer.Option(..., help="Observation year"),
         connector.base_dir = BASE_DIR
 
     logging.info(f"===== Start {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
-    logging.info(f"----- Processing data for {year}-{m} -----\n")
+    logging.info(f"----- Processing data for {y}-{m} -----\n")
 
-    filename = f"e-CALLISTO_{year}_{m}.txt"
+    filename = f"e-CALLISTO_{y}_{m}.txt"
     filename = burstlist.download_burst_list(year, month)
 
     pref_date = None
     if day > 0:
-        pref_date = f"{year}{m}{d}"
+        pref_date = f"{y}{m}{d}"
 
     burst_list = burstlist.process_burst_list(filename, date=pref_date)
     observations = extract_bursts(burst_list, type, connector=connector)

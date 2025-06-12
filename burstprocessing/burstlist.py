@@ -6,7 +6,7 @@ project: Raumschiff
 """
 import datetime
 import os
-
+import re
 import pandas as pd
 import requests
 
@@ -14,6 +14,26 @@ import utils.timeutils
 
 BASE_URL = "http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
 
+def find_start_of_data(filename: str) -> int:
+    """
+    The format of the burst list has changed around mit 2024. Before then
+    there where 8 lines of comment. After that, the file has 11 lines. 
+    In order to maintain backwards compatibility we try to estimate the 
+    file version read in.
+
+    Args:
+        filename (str): The path to the burstlist
+
+    Returns:
+        int: Number of header rows
+    """
+    date_regex = re.compile(r'^\d{8}\b')
+    
+    with open(filename, "r", encoding="utf-8") as f:
+        for index, line in enumerate(f, start=0):
+            if date_regex.match(line):
+                return index
+    return 0
 
 def process_burst_list(filename, date=None) -> pd.DataFrame:
     """
@@ -26,8 +46,10 @@ def process_burst_list(filename, date=None) -> pd.DataFrame:
 
     Returns: A Pandas Dataframe with valid events
     """
+    
+    data_start = find_start_of_data(filename)
     col_names = ['Date', 'Time', 'Type', 'Instruments']
-    data = pd.read_csv(filename, sep="\t", skiprows=8, skipfooter=4,
+    data = pd.read_csv(filename, sep="\t+", skiprows=data_start, skipfooter=4,
                        index_col=False, encoding="latin-1",
                        names=col_names, engine="python")
 

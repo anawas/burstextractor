@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-
+from typing import Optional
 
 class BaseConnector(ABC):
     """
@@ -15,15 +15,15 @@ class BaseConnector(ABC):
         pass
 
     @abstractmethod
-    def list_dir(self, dir_name: str = None) -> list:
+    def list_dir(self, dir_name: Optional[str] = None) -> list:
         pass
 
     @abstractmethod
-    def get_file(self, file_name: str, local_file_name: str = None):
+    def get_file(self, file_name: str, local_file_name: Optional[str] = None):
         pass
 
     @abstractmethod
-    def put_file(self, file_name: str, local_file_name: str = None, overwrite: bool = False):
+    def put_file(self, file_name: str, local_file_name: Optional[str] = None, overwrite: bool = False):
         pass
 
     @abstractmethod

@@ -45,7 +45,7 @@ def check_valid_date(year, month, day):
     ), "The year {} lies in the future".format(year)
 
 
-def adjust_year_month_day(year, month, day=None):
+def adjust_year_month_day(year: int, month: int , day: int=0):
     """
     We'll work with string numbers in function download_burst_list.
     Here we convert the arguments to strings and pads the month
@@ -55,7 +55,7 @@ def adjust_year_month_day(year, month, day=None):
     """
     m = str(month).zfill(2)
 
-    if day is not None:
+    if day == 0:
         d = str(day).zfill(2)
     else:
         d = ""

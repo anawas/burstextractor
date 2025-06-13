@@ -8,7 +8,7 @@ import tempfile
 import matplotlib.pyplot as plt
 import numpy as np
 from radiospectra.sources import CallistoSpectrogram
-
+from connectors.baseconnector import BaseConnector
 from utils.validation import calculate_snr
 
 
@@ -93,7 +93,7 @@ class RadioBurstObservation:
         # Adding snr to the fits header for further reference
         self.spectrum.header.append(("snr", self.snr))
 
-    def write_observation(self, connector=None):
+    def write_observation(self, connector: BaseConnector):
         # Because this method is run in multiprocessing env.
         # we must create an individual file handle for it
         self.__logger = logging.getLogger(f'observations_{multiprocessing.current_process().pid}')
@@ -106,8 +106,8 @@ class RadioBurstObservation:
         self.create_spectrogram(prettify=True)
         self.__logger.debug(f"Writing for instrument {self.instrument}")
         if self.snr < 0.0:
-            self.__logger.info(f"snr undetermined for {self.instrument} - not writing")
-            return
+            self.__logger.info(f"snr undetermined for {self.instrument} at {self.event_time_start}")
+        #     return
 
         plt.ioff()
         fig = plt.figure(figsize=(10, 6.2))
@@ -115,7 +115,7 @@ class RadioBurstObservation:
         self.spectrum.plot(fig, vmin=-2, vmax=17, cmap=plt.get_cmap('plasma'))
         fig.tight_layout()
 
-        with tempfile.NamedTemporaryFile() as tmpfile:
+        with tempfile.NamedTemporaryFile(delete=True) as tmpfile:
             tmp_filename = tmpfile.name
             plt.savefig(f"{tmp_filename}.jpg")
             plt.close(fig)

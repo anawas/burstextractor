@@ -55,7 +55,7 @@ def adjust_year_month_day(year: int, month: int , day: int=0):
     """
     m = str(month).zfill(2)
 
-    if day == 0:
+    if day != 0:
         d = str(day).zfill(2)
     else:
         d = ""

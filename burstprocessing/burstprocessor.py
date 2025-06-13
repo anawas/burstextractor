@@ -43,6 +43,8 @@ def extract_radio_burst(event, connector=None) -> list:
 
     date = str(event['Date'])
     path = os.path.join(connector.base_dir, f"type_{str(event['Type'])}")
+    if event['Type'] == "---":
+        path = os.path.join(connector.base_dir, f"type_unspecified")
 
     if connector is None:
         if not os.path.exists(path):
@@ -94,7 +96,10 @@ def extract_radio_burst(event, connector=None) -> list:
                 obs.instrument = instr
                 obs.event_time_start = event_start
                 obs.event_time_end = event_end
-                obs.radio_burst_type = str(event['Type'])
+                if str(event['Type']) == "---":
+                    obs.radio_burst_type = "unspecified"
+                else:   
+                    obs.radio_burst_type = str(event['Type'])
                 observation_list.append(obs)
             except ValueError:
                 logging.error(f"No data for instrument {instr}"

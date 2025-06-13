@@ -23,7 +23,7 @@ class BaseConnector(ABC):
         pass
 
     @abstractmethod
-    def put_file(self, file_name: str, local_file_name: Optional[str] = None, overwrite: bool = False):
+    def put_file(self, remote_name: str, local_name: Optional[str] = None, overwrite: bool = False):
         pass
 
     @abstractmethod

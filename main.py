@@ -65,7 +65,7 @@ def main(year: int = typer.Option(..., help="Observation year"),
 
 def extract_bursts(burst_list, chosen_type: str, connector=None):
     # Let's define all burst types that we want to process
-    burst_types = ["I", "II", "III", "IV", "V"]
+    burst_types = ["I", "II", "III", "IV", "V", "---"]
     types_to_process = list()
     if (chosen_type == "all"):
         types_to_process = burst_types.copy()

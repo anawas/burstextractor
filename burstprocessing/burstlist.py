@@ -16,7 +16,7 @@ BASE_URL = "http://soleil.i4ds.ch/solarradio/data/BurstLists/2010-yyyy_Monstein"
 
 def find_start_of_data(filename: str) -> int:
     """
-    The format of the burst list has changed around mit 2024. Before then
+    The format of the burst list has changed around mid 2024. Before then
     there where 8 lines of comment. After that, the file has 11 lines. 
     In order to maintain backwards compatibility we try to estimate the 
     file version read in.
@@ -35,6 +35,26 @@ def find_start_of_data(filename: str) -> int:
                 return index
     return 0
 
+def find_end_of_data(filename: str) -> int:
+    """
+    The format of the burst list has changed around mid 2024. Before then
+    there where 4 lines of footer. After that, the is no footer anymore.
+    We try to find a footer and count the number of lines to be skipped.
+    
+    Args:
+        filename (str): The path to the burstlist
+
+    Returns:
+        int: Number of header rows
+    """
+    date_regex = re.compile(r'^\d{8}\b')
+    
+    with open(filename, "r", encoding="utf-8") as f:
+        for index, line in enumerate(reversed(f.readlines())):
+            if date_regex.match(line):
+                return index
+    return 0
+
 def process_burst_list(filename, date=None) -> pd.DataFrame:
     """
     Let's discard the entries with missing data.
@@ -48,8 +68,10 @@ def process_burst_list(filename, date=None) -> pd.DataFrame:
     """
     
     data_start = find_start_of_data(filename)
+    data_end = find_end_of_data(filename)
+    
     col_names = ['Date', 'Time', 'Type', 'Instruments']
-    data = pd.read_csv(filename, sep="\t+", skiprows=data_start, skipfooter=4,
+    data = pd.read_csv(filename, sep="\t+", skiprows=data_start, skipfooter=data_end,
                        index_col=False, encoding="latin-1",
                        names=col_names, engine="python")
 

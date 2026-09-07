@@ -57,8 +57,15 @@ def main(year: int = typer.Option(..., help="Observation year"),
     observations = extract_bursts(burst_list, type, connector=connector)
     if len(observations) > 0:
         with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()-2) as executor:
-            results = [executor.submit(obs.write_observation, connector) for obs in observations]
+            results = {executor.submit(obs.write_observation, connector): obs for obs in observations}
             wait(results, return_when=ALL_COMPLETED)
+            failed = 0
+            for future, obs in results.items():
+                error = future.exception()
+                if error is not None:
+                    failed += 1
+                    logging.error(f"Cannot write observation {obs}. Cause: {error!r}")
+            logging.info(f"Wrote {len(results) - failed} of {len(results)} observation(s)")
 
     logging.info(f"===== End {datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')} =====\n")
 

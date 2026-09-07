@@ -10,6 +10,8 @@ import numpy as np
 from radiospectra.sources import CallistoSpectrogram
 from connectors.baseconnector import BaseConnector
 from utils.validation import calculate_snr
+# Restores matplotlib.cm.get_cmap, which radiospectra's plot() needs.
+import utils.mpl_compat  # noqa: F401
 
 
 class RadioBurstObservation:

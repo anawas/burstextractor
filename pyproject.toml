@@ -11,6 +11,7 @@ authors = [{ name = "Andreas Wassmer", email = "andreas.wassmer@fhnw.ch" }]
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.13",
+    "coverage>=7.16.0",
     "matplotlib>=3.10",
     # radiospectra @ fe514c8 uses np.float_, which NumPy 2.0 removed
     "numpy>=1.26,<2",
@@ -48,3 +49,6 @@ packages = ["burstprocessing", "connectors", "observation", "utils"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.report]
+omit = ["tests/*", "__init__.py"]

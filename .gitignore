@@ -7,6 +7,8 @@ venv/
 .venv/
 __pycache__/
 bursts/
+.coverage
+
 
 # ignore any downloaded files
 *.txt

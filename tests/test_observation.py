@@ -1,8 +1,6 @@
 import datetime
-import sys
 
-sys.path.insert(0, '..')
-import Observation
+from observation import Observation
 
 
 def test_suggest_filename():

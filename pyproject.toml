@@ -1,14 +1,50 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "burstprocessor"
 version = "0.1.0"
 description = "Projekt zur Verarbeitung von Beobachtungsdaten"
+readme = "README.md"
 authors = [{ name = "Andreas Wassmer", email = "andreas.wassmer@fhnw.ch" }]
-dependencies = []
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.13",
+    "matplotlib>=3.10",
+    # radiospectra @ fe514c8 uses np.float_, which NumPy 2.0 removed
+    "numpy>=1.26,<2",
+    "pandas>=2.3",
+    "python-dotenv>=1.1",
+    "radiospectra",
+    "requests>=2.32",
+    # Undeclared imports of radiospectra @ fe514c8: skimage, sortedcontainers,
+    # ruptures, plus distutils, which was removed from the stdlib in 3.12 and
+    # comes back via setuptools. All four can go once radiospectra is unpinned.
+    "ruptures>=1.1.9",
+    "scikit-image>=0.25",
+    "setuptools>=80",
+    "sortedcontainers>=2.4",
+    "tqdm>=4.67",
+    "typer>=0.16",
+    "urllib3>=2.4",
+    "webdavclient3>=3.14",
+]
 
-[tool.setuptools]
-packages = ["connectors", "utils", "burstprocessing", "observation"]
-include-package-data = true
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+]
+# Only needed by utils/ecallisto_handler.py
+ecallisto = [
+    "ecallisto-ng",
+]
+
+[tool.uv.sources]
+radiospectra = { git = "https://github.com/sunpy/radiospectra.git", rev = "fe514c8" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["burstprocessing", "connectors", "observation", "utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

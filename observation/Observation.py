@@ -39,7 +39,7 @@ class RadioBurstObservation:
         # Recalculate the values
         # self.spectrum.elimwrongchannels(overwrite=True)
         self.__spec_max = np.nanmax(self.spectrum.data)
-        self.snr = calculate_snr(self.spectrum)
+        self.snr = calculate_snr(self.spectrum.data)
 
     def reverse_extract_instrument_name(self, instrument_name, include_number=False):
         """

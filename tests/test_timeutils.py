@@ -1,3 +1,4 @@
+import datetime
 import sys
 
 import pytest
@@ -22,7 +23,14 @@ def test_adjustyearmonth(event_dates):
         assert adjust_year_month_day(d[0], d[1], d[2]) == event_dates[d]
 
 
-@pytest.mark.parametrize("year, month, day", [(2024, 3, 1), (2022, 13, 1), (2023, 1, 41), (2022, "12", 1)])
+NEXT_YEAR = datetime.date.today().year + 1
+
+
+@pytest.mark.parametrize("year, month, day", [(NEXT_YEAR, 3, 1), (2022, 13, 1), (2023, 1, 41), (2022, "12", 1)])
 def test_checkvaliddate(year, month, day):
     with pytest.raises(AssertionError):
         check_valid_date(year, month, day)
+
+
+def test_checkvaliddate_accepts_past_date():
+    check_valid_date(2023, 1, 31)

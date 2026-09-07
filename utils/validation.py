@@ -2,12 +2,13 @@ import numpy as np
 from radiospectra.sources import CallistoSpectrogram
 
 
-def calculate_snr(spectrogram: CallistoSpectrogram) -> float:
+def calculate_snr(data: np.ndarray) -> float:
     """
-    Calculates the signal to noise ratio of a spectrogram
+    Calculates the signal to noise ratio of the spectrogram data,
+    i.e. of the array behind CallistoSpectrogram.data
     """
-    signal = np.nanmean(spectrogram.data)
-    noise = np.nanstd(spectrogram.data)
+    signal = np.nanmean(data)
+    noise = np.nanstd(data)
     return signal/noise
 
 

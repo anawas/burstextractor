@@ -14,7 +14,7 @@ dependencies = [
     "coverage>=7.16.0",
     "matplotlib>=3.10",
     # radiospectra @ fe514c8 uses np.float_, which NumPy 2.0 removed
-    "numpy>=1.26,<2",
+    "numpy>=1.26,<3",
     "pandas>=2.3",
     "python-dotenv>=1.1",
     "radiospectra",

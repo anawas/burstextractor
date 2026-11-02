@@ -223,8 +223,6 @@ wheels = [
 name = "burstprocessor"
 version = "0.1.0"
 source = { editable = "." }
-<<<<<<< HEAD
-=======
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "coverage" },
@@ -2495,4 +2493,3 @@ sdist = { url = "https://files.pythonhosted.org/packages/7e/c2/e06e5f177d818d0fc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/87/5c1d29f52fc32da98b75dc8a681cd0de78c9cfd5c10493cd7fb730e1d4b0/zeep-4.3.3-py3-none-any.whl", hash = "sha256:5adfae35582848819f8bb97b6ea9f1a34a2d4851a539f830e14dbab09961dd18", size = 102054, upload-time = "2026-06-18T17:17:57.223Z" },
 ]
->>>>>>> f6fb92c365d0d52152713fa82b24cd7b396beb96

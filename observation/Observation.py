@@ -10,6 +10,8 @@ import numpy as np
 from radiospectra.sources import CallistoSpectrogram
 from connectors.baseconnector import BaseConnector
 from utils.validation import calculate_snr
+# Restores matplotlib.cm.get_cmap, which radiospectra's plot() needs.
+import utils.mpl_compat  # noqa: F401
 
 
 class RadioBurstObservation:
@@ -39,7 +41,7 @@ class RadioBurstObservation:
         # Recalculate the values
         # self.spectrum.elimwrongchannels(overwrite=True)
         self.__spec_max = np.nanmax(self.spectrum.data)
-        self.snr = calculate_snr(self.spectrum)
+        self.snr = calculate_snr(self.spectrum.data)
 
     def reverse_extract_instrument_name(self, instrument_name, include_number=False):
         """

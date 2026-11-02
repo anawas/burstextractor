@@ -1,15 +1,13 @@
 import os
-import sys
 
 from radiospectra.sources import CallistoSpectrogram
 
-sys.path.insert(0, '..')
-import webdav.WebdavConnector as wdav
+from connectors.webdavconnector import WebdavConnector
 
 BASE_DIR = "temp/"
 
 if __name__ == "__main__":
-    client = wdav.WebdavConnector()
+    client = WebdavConnector()
     path = os.path.join(BASE_DIR, "type_III")
 
     print("Searching file on server ...")

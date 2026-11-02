@@ -1,11 +1,14 @@
 # ignore IDE specific folder
 .vscode/
+.idea/
 
 # ignore virtual environemnt
 venv/
+.venv/
 __pycache__/
 bursts/
-burstprocessor.egg-info/
+.coverage
+
 
 # ignore any downloaded files
 *.txt
